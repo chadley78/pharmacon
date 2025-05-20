@@ -24,8 +24,7 @@ export default async function OrdersPage() {
   // Check if user is authenticated
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    console.error('Auth error:', authError)
-    redirect('/login')
+    redirect('/login?redirect=/account/orders')
   }
 
   try {

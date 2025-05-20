@@ -12,7 +12,7 @@ export default async function AccountLayout({
   // Check if user is authenticated
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    redirect('/login')
+    redirect('/login?redirect=/account')
   }
 
   return (

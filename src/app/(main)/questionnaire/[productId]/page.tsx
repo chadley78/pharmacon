@@ -14,7 +14,7 @@ export default async function QuestionnairePage({ params }: QuestionnairePagePro
   // Check if user is authenticated
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    redirect('/login')
+    redirect(`/login?redirect=/questionnaire/${params.productId}`)
   }
 
   // Fetch product details

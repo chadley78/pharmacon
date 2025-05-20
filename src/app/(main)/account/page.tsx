@@ -7,7 +7,7 @@ export default async function AccountPage() {
   // Check if user is authenticated
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    redirect('/login')
+    redirect('/login?redirect=/account')
   }
 
   // Get user's profile

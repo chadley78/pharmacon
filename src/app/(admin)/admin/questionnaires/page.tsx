@@ -33,7 +33,7 @@ export default async function AdminQuestionnairesPage() {
   // Check if user is authenticated
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) {
-    redirect('/login')
+    redirect('/login?redirect=/admin/questionnaires')
   }
 
   // Use admin client to check if user is an admin
