@@ -100,7 +100,6 @@ export default function CheckoutPage() {
             )}
             {currentStep === 'payment' && (
               <PaymentForm
-                onSubmit={handlePaymentSubmit}
                 onBack={() => setCurrentStep('billing')}
                 shippingAddress={shippingAddress!}
                 billingAddress={billingAddress!}
