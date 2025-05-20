@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { UserIcon } from '@heroicons/react/24/outline'
 
 export default function Navbar() {
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<unknown>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -26,7 +26,7 @@ export default function Navbar() {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase.auth])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()

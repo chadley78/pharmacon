@@ -15,13 +15,6 @@ export default async function AccountLayout({
     redirect('/login')
   }
 
-  const navigation = [
-    { name: 'Overview', href: '/account' },
-    { name: 'Orders', href: '/account/orders' },
-    { name: 'Consultations', href: '/account/consultations' },
-    { name: 'Questionnaires', href: '/account/questionnaires' },
-  ]
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">

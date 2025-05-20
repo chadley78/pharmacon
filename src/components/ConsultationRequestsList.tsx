@@ -37,7 +37,7 @@ export function ConsultationRequestsList({ requests }: ConsultationRequestsListP
   if (requests.length === 0) {
     return (
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-        <p className="text-gray-600">You haven't made any consultation requests yet.</p>
+        <p className="text-gray-600">You haven&apos;t submitted any consultation requests yet.</p>
       </div>
     )
   }

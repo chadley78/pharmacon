@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatAmountFromStripe } from '@/lib/stripe'
 import { Order, OrderItem } from '@/lib/types'
+import Image from 'next/image'
 
 export default function SuccessPage() {
   const [order, setOrder] = useState<Order | null>(null)
@@ -125,7 +126,7 @@ export default function SuccessPage() {
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-gray-900">Thank you for your order!</h1>
         <p className="mt-2 text-sm text-gray-500">
-          Your order has been received and is being processed.
+          We&apos;ve received your order and it's being processed.
         </p>
       </div>
 
@@ -163,9 +164,11 @@ export default function SuccessPage() {
               <li key={item.id} className="py-4 flex">
                 <div className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
                   {item.product?.image_url && (
-                    <img
+                    <Image
                       src={item.product.image_url}
                       alt={item.product.name}
+                      width={96}
+                      height={96}
                       className="w-full h-full object-center object-cover"
                     />
                   )}

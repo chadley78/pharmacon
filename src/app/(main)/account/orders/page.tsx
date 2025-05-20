@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 
 type OrderItem = {
   id: string
@@ -79,7 +78,7 @@ export default async function OrdersPage() {
         <div>
           <h1 className="text-2xl font-bold mb-6">Order History</h1>
           <div className="bg-white border border-gray-200 rounded-lg p-6 text-center text-gray-500">
-            You haven't placed any orders yet.
+            You haven&apos;t placed any orders yet.
           </div>
         </div>
       )

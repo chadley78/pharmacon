@@ -7,13 +7,6 @@ import { getStripe } from '@/lib/stripe'
 import { useCart } from '@/lib/context/CartContext'
 import { Address } from '@/lib/types'
 
-interface PaymentFormProps {
-  onSubmit: () => Promise<void>
-  onBack: () => void
-  shippingAddress: Address
-  billingAddress: Address
-}
-
 function CheckoutForm({ onBack, shippingAddress, billingAddress }: { 
   onBack: () => void
   shippingAddress: Address
@@ -143,7 +136,7 @@ function CheckoutForm({ onBack, shippingAddress, billingAddress }: {
   )
 }
 
-export default function PaymentForm({ onSubmit, onBack, shippingAddress, billingAddress }: PaymentFormProps) {
+export default function PaymentForm() {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -246,7 +239,7 @@ export default function PaymentForm({ onSubmit, onBack, shippingAddress, billing
       }}
     >
       <CheckoutForm 
-        onBack={onBack} 
+        onBack={() => {}} 
         shippingAddress={shippingAddress}
         billingAddress={billingAddress}
       />

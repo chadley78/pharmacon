@@ -68,7 +68,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       }
       checkApproval()
     }
-  }, [product.id, product.category])
+  }, [product.id, product.category, supabase])
 
   const handleAddToCart = async () => {
     setLoading(true)

@@ -23,7 +23,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Fetch cart items on mount and when auth state changes
   useEffect(() => {
     fetchCart()
-  }, [])
+  }, [fetchCart])
 
   async function fetchCart() {
     try {
