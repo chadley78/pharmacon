@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       aria-label={`View details for ${product.name}`}
       className={`group block rounded-[16px] sm:rounded-[24px] border border-gray-200 shadow-md hover:shadow-xl active:shadow-lg hover:scale-[1.02] active:scale-[0.98] transform transition-all duration-300 ease-in-out ${getBorderHoverClass(product.category)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-700 focus-visible:ring-offset-2`}
     >
-      <div className={`relative aspect-w-1 aspect-h-1 w-full min-h-[200px] sm:min-h-[300px] overflow-hidden rounded-t-[16px] sm:rounded-t-[24px] bg-gradient-to-br ${getGradientClass(product.category)}`}>
+      <div className={`relative aspect-[4/3] w-full min-h-[150px] sm:min-h-[200px] overflow-hidden rounded-t-[16px] sm:rounded-t-[24px] bg-gradient-to-br ${getGradientClass(product.category)}`}>
         {product.image_url ? (
           <Image
             src={product.image_url}
