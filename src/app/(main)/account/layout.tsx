@@ -47,6 +47,14 @@ export default async function AccountLayout({
                   Order History
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/account/questionnaires"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+                >
+                  My Questionnaires
+                </Link>
+              </li>
             </ul>
           </div>
         </nav>
