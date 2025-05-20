@@ -29,10 +29,6 @@ export default function HeroBanner() {
           </div>
         </div>
       </div>
-      {/* Section below: White, full width, top rounded corners, no shadow */}
-      <div className="w-full bg-white rounded-t-[40px] min-h-[200px] flex items-center justify-center">
-        <div className="text-2xl text-gray-400 py-12">Section Below (placeholder)</div>
-      </div>
     </section>
   );
 } 
