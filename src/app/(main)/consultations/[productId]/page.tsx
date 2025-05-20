@@ -1,21 +1,29 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Product } from '@/lib/types'
 import ConsultationRequestForm from '@/components/forms/ConsultationRequestForm'
 
 interface ConsultationPageProps {
-  params: {
+  params: Promise<{
     productId: string
-  }
+  }>
 }
 
 export default async function ConsultationPage({ params }: ConsultationPageProps) {
+  const { productId } = await params
   const supabase = await createClient()
   
+  // Check if user is authenticated
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError || !user) {
+    redirect('/login?redirect=/consultations/' + productId)
+  }
+
+  // Get product details
   const { data: product } = await supabase
     .from('products')
     .select('*')
-    .eq('id', params.productId)
+    .eq('id', productId)
     .eq('category', 'doctor_consultation')
     .eq('is_active', true)
     .single()

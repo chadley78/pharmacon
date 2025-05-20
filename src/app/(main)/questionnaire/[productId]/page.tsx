@@ -1,0 +1,46 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import QuestionnaireForm from '@/components/forms/QuestionnaireForm'
+
+interface QuestionnairePageProps {
+  params: {
+    productId: string
+  }
+}
+
+export default async function QuestionnairePage({ params }: QuestionnairePageProps) {
+  const supabase = await createClient()
+  
+  // Check if user is authenticated
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    redirect('/login')
+  }
+
+  // Fetch product details
+  const { data: product, error: productError } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', params.productId)
+    .single()
+
+  if (productError || !product) {
+    redirect('/products')
+  }
+
+  // Verify this is a questionnaire product
+  if (product.category !== 'questionnaire_prescription') {
+    redirect(`/products/${product.slug}`)
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Medical Questionnaire</h1>
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">{product.name}</h2>
+        <p className="text-gray-600 mb-6">{product.description}</p>
+        <QuestionnaireForm product={product} />
+      </div>
+    </div>
+  )
+} 

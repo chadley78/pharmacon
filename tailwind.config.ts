@@ -8,6 +8,29 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        'xefag': {
+          // Base product colors
+          'sleep': {
+            'base': '#8A0E4F',
+            'tint': '#C71585',
+          },
+          'relax': {
+            'base': '#FFD700',
+            'tint': '#FFEEAA',
+          },
+          // CTA colors
+          'cta': {
+            'yellow': '#FFD700',
+            'black': '#000000',
+          },
+          // Text colors
+          'text': {
+            'black': '#171717',
+            'white': '#FFFFFF',
+          }
+        }
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

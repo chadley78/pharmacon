@@ -9,14 +9,19 @@ interface ProductPageProps {
   }
 }
 
+export async function generateMetadata({ params }: ProductPageProps) {
+  return {
+    title: `Product - ${params.slug}`,
+  }
+}
+
 export default async function ProductPage({ params }: ProductPageProps) {
-  const slug = await Promise.resolve(params.slug)
   const supabase = await createClient()
   
   const { data: product } = await supabase
     .from('products')
     .select('*')
-    .eq('slug', slug)
+    .eq('slug', params.slug)
     .eq('is_active', true)
     .single()
 

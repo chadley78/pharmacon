@@ -4,9 +4,12 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CartIcon from '@/components/cart/CartIcon'
+import { useRouter } from 'next/navigation'
+import { UserIcon } from '@heroicons/react/24/outline'
 
 export default function Navbar() {
   const [session, setSession] = useState<any>(null)
+  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
@@ -25,43 +28,57 @@ export default function Navbar() {
     return () => subscription.unsubscribe()
   }, [])
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.refresh()
+  }
+
   return (
-    <nav className="bg-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-white font-bold text-xl">
+            <Link href="/" className="text-gray-900 font-bold text-2xl tracking-tight">
               Pharmacon
             </Link>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link
               href="/products"
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
             >
               Products
             </Link>
-            <CartIcon />
+            <div className="relative">
+              <CartIcon />
+            </div>
             {session ? (
-              <form action="/auth/signout" method="post">
+              <>
+                <Link
+                  href="/account"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-900 hover:bg-yellow-400 hover:text-black transition-colors duration-150 shadow-sm focus:outline-none"
+                  aria-label="Account"
+                >
+                  <UserIcon className="h-5 w-5" />
+                </Link>
                 <button
-                  type="submit"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  onClick={handleSignOut}
+                  className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Sign Out
                 </button>
-              </form>
+              </>
             ) : (
               <>
                 <Link
                   href="/login"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                  className="bg-yellow-400 text-black px-3 py-2 rounded-md text-sm font-bold hover:bg-yellow-300 transition-colors"
                 >
                   Sign Up
                 </Link>

@@ -18,9 +18,12 @@ export interface CartItem {
   user_id: string
   product_id: string
   quantity: number
+  questionnaire_approval_id?: string | null
   created_at: string
   updated_at: string
   product?: Product
+  dosage?: number
+  tablet_count?: number
 }
 
 export interface Cart {

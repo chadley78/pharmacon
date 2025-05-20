@@ -641,31 +641,429 @@
     *   **Test Criteria:** Logged-in user can see a list of their questionnaire approvals (product name, date, status).
     *   **Depends On:** P1-006, P7-003, P7-004, P8-001.
 
-### Phase 9: Basic Styling & Polish (MVP Level)
+### Phase 9: Styling & Polish - Xefag Aesthetic (Updated)
 
-*   **Task ID: P9-001**
-    *   **Description:** Apply very basic global styling for readability.
-    *   **File(s) to Create/Modify:** `styles/globals.css`.
-    *   **Test Criteria:** Site is visually clean enough for testing (e.g., consistent font, basic spacing).
-    *   **Depends On:** P1-001.
+**Prerequisites for this Phase:**
+*   A font like Poppins, Avenir, or Inter is selected and configured in the Next.js project (e.g., via `next/font` or a CSS import).
+*   Tailwind CSS is set up (or an alternative CSS strategy is in place).
 
-*   **Task ID: P9-002**
-    *   **Description:** Ensure basic responsive behavior for key pages (Product List, Product Detail, Cart).
-    *   **File(s) to Create/Modify:** `styles/globals.css` or component-specific styles.
-    *   **Test Criteria:** Pages are usable on a mobile-sized viewport.
-    *   **Depends On:** P9-001.
+---
 
-*   **Task ID: P9-003**
-    *   **Description:** Add simple loading indicators for page navigations or major data fetches (e.g., using Next.js `loading.tsx`).
-    *   **File(s) to Create/Modify:** `app/loading.tsx`, `app/(main)/products/loading.tsx`, etc.
-    *   **Test Criteria:** A loading state is visible during data fetching or route transitions.
-    *   **Depends On:** P1-001.
+## MVP Build Plan: E-Commerce Pharmacy
 
-*   **Task ID: P9-004**
-    *   **Description:** Add basic error handling display for API call failures (e.g., show a message if payment intent creation fails).
-    *   **File(s) to Create/Modify:** Relevant components making API calls (e.g., `CheckoutForm.tsx`, `ConsultationRequestForm.tsx`).
-    *   **Test Criteria:** If an API call fails, a user-friendly error message is shown.
-    *   **Depends On:** P5-013, P6-011, P7-011.
+### Phase 9: Styling & Polish - Xefag Aesthetic (Updated for Product Detail Page Focus)
+
+**Prerequisites for this Phase:**
+*   A font like Poppins, Avenir, or Inter is selected and configured in the Next.js project (e.g., via `next/font` or a CSS import).
+*   Tailwind CSS is set up (or an alternative CSS strategy is in place).
+*   SVG icons for plus/minus, cart, etc., are available.
+
+---
+
+#### A. Global & Foundational Styles
+
+*   **Task ID: P9-PDP-001**
+    *   **Description:** Set global default font family (e.g., Poppins) and base text color for the entire application.
+    *   **File(s) to Create/Modify:** `styles/globals.css` (or Tailwind config `tailwind.config.js` if extending `theme.fontFamily`).
+    *   **Test Criteria:** All text across the application (where not overridden) now uses the chosen sans-serif font. Base text color is applied.
+    *   **Depends On:** (Font selection and setup).
+
+*   **Task ID: P9-PDP-002**
+    *   **Description:** Define core Xefag color palette in Tailwind config (or CSS variables) for application-wide use.
+        *   Vibrant base colors for products (e.g., `xefag-sleep-base: #8A0E4F`, `xefag-relax-base: #FFD700`). Store these in a way they can be dynamically applied later (e.g., product metadata).
+        *   Lighter tints for gradients (e.g., `xefag-sleep-tint: #C71585`, `xefag-relax-tint: #FFEEAA`).
+        *   White: `#FFFFFF`.
+        *   CTA accent colors (e.g., `xefag-cta-yellow: #FFD700`, `xefag-cta-black: #000000`).
+        *   General text colors (`text-black`, `text-white`).
+    *   **File(s) to Create/Modify:** `tailwind.config.js` (under `theme.extend.colors`) or `styles/globals.css` (for CSS variables).
+    *   **Test Criteria:** Color names/variables are defined and usable. No visual change yet.
+    *   **Depends On:** None.
+
+#### B. Product Detail Page (`app/(main)/products/[slug]/page.tsx`) - Core "Xefag Aesthetic"
+
+*   **Task ID: P9-PDP-003**
+    *   **Description:** Apply a full-bleed, vibrant monochrome gradient background to the **Product Detail Page**. This gradient should dynamically use the product's assigned base color and its tint. (For initial testing, hardcode for one product).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or its immediate layout/wrapper).
+    *   **Test Criteria:** The entire background of the Product Detail Page displays the specified gradient. Content will sit on top.
+    *   **Depends On:** P9-PDP-002, P3-008.
+
+*   **Task ID: P9-PDP-004**
+    *   **Description:** Structure the main content area of the **Product Detail Page** to embody a "full-height, scrollable vertical card" feel. Ensure generous padding (min 24px) around this main content area relative to the page edges.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** The Product Detail Page has a clear main content zone with significant padding. If content overflows vertically, the page (or this zone) is scrollable.
+    *   **Depends On:** P3-008.
+
+*   **Task ID: P9-PDP-005**
+    *   **Description:** Style the Product Image on the **Product Detail Page**:
+        *   Center it within the main content area.
+        *   It should occupy ~40% of the available vertical space (of its container within the main content area).
+        *   Apply a subtle 3D-like drop shadow to make it appear "floating" above the gradient background.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or a specific ProductImage component used here).
+    *   **Test Criteria:** Product image is centered, appropriately sized, and has a distinct "floating" shadow on the Product Detail Page.
+    *   **Depends On:** P9-PDP-003, P9-PDP-004.
+
+*   **Task ID: P9-PDP-006**
+    *   **Description:** On the **Product Detail Page**, create the "white content block" for product information (name, description, price, options, CTA).
+        *   This block should have a clean white background.
+        *   Give it rounded top corners only (min 24px radius, e.g., `rounded-t-3xl`) to simulate a "card rising from the base" (the gradient background).
+        *   Ensure it's positioned below the product image, within the main content area.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** A white block containing product text and CTA areas appears below the image, with only top corners rounded, on the Product Detail Page.
+    *   **Depends On:** P9-PDP-005.
+
+*   **Task ID: P9-PDP-007**
+    *   **Description:** Apply typography hierarchy to text within the "white content block" on the **Product Detail Page**:
+        *   Product Name: Large, bold headline (e.g., `text-2xl md:text-3xl font-bold`).
+        *   Description: Medium subtext (e.g., `text-base md:text-lg`).
+        *   Price: Large or Medium, bold (e.g., `text-xl md:text-2xl font-bold`).
+        *   Supporting labels (e.g., for dosage/options): Small, lighter weight (e.g., `text-sm md:text-base font-light`).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** Text elements for product name, description, price, and labels on the Product Detail Page use the specified sizes and weights.
+    *   **Depends On:** P9-PDP-001, P9-PDP-006.
+
+*   **Task ID: P9-PDP-008**
+    *   **Description:** Ensure text within the "white content block" on the **Product Detail Page** is left-aligned. Apply generous padding (min 24px) within this white block around its content.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** Text is left-aligned. There's visible padding around the content inside the white block on the Product Detail Page.
+    *   **Depends On:** P9-PDP-006.
+
+*   **Task ID: P9-PDP-009**
+    *   **Description:** Style the main CTA button ("Add to Cart", "Request Consultation", etc.) within the "white content block" on the **Product Detail Page**:
+        *   Rounded corners (e.g., `rounded-full` or `rounded-lg`).
+        *   Bold text.
+        *   High-contrast colors (e.g., `bg-xefag-cta-yellow text-xefag-cta-black` or `bg-xefag-cta-black text-white`).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or a client component used for the button).
+    *   **Test Criteria:** The main CTA button on the Product Detail Page reflects the Xefag style.
+    *   **Depends On:** P3-008, P6-002, P7-002, P9-PDP-002, P9-PDP-006.
+
+*   **Task ID: P9-PDP-010**
+    *   **Description:** Apply hover state to the main CTA button on the **Product Detail Page**: elevate with shadow, slightly lighten/darken background.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or the button's component).
+    *   **Test Criteria:** Hovering over the Product Detail Page CTA button changes its shadow and background.
+    *   **Depends On:** P9-PDP-009.
+
+*   **Task ID: P9-PDP-011**
+    *   **Description:** Apply press state to the main CTA button on the **Product Detail Page**: slightly shrink or deepen color tone.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or the button's component).
+    *   **Test Criteria:** Pressing (mousedown) the Product Detail Page CTA button shows a visual change.
+    *   **Depends On:** P9-PDP-009.
+
+*   **Task ID: P9-PDP-012**
+    *   **Description:** Style "Product Options" (e.g., 30/60/90 dosage) if displayed as interactive elements on the **Product Detail Page**:
+        *   Use floating circular buttons or "pills".
+        *   Give them soft drop shadows or outlines to pop.
+        *   Clearly highlight the active/selected state (e.g., different background/border, stronger shadow).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (or a component for product options).
+    *   **Test Criteria:** Product option pills on the Product Detail Page are styled as floating elements with distinct active states. (Low priority if no such interactive options exist in MVP).
+    *   **Depends On:** (Existence of interactive product options UI on the detail page), P9-PDP-002.
+
+#### C. Styling Other Key Components & Pages
+
+*   **Task ID: P9-PDP-013**
+    *   **Description:** Style the basic Product Card (`components/products/ProductCard.tsx`) used in listings (`/products` page):
+        *   Rounded corners (min 24px, e.g., `rounded-3xl`).
+        *   Subtle drop shadow.
+        *   White background. (The elaborate gradient and floating image are for the detail page).
+        *   Ensure text (name, price) within it is legible and uses the global font.
+    *   **File(s) to Create/Modify:** `components/products/ProductCard.tsx`.
+    *   **Test Criteria:** Product cards on listing pages are clean, rounded, shadowed, and distinct from the more elaborate Product Detail Page styling.
+    *   **Depends On:** P3-006, P9-PDP-001.
+
+*   **Task ID: P9-PDP-014**
+    *   **Description:** Style the Quantity Selector if present on the **Product Detail Page** or **Cart Page** (`cart/page.tsx`):
+        *   Use circular buttons for plus/minus.
+        *   Minimal, thin-line or solid icons (e.g., `+`, `-`) inside.
+        *   Buttons spaced evenly.
+        *   Apply hover/press states (color/shadow changes).
+    *   **File(s) to Create/Modify:** Relevant page/component files where quantity selectors appear.
+    *   **Test Criteria:** Quantity selectors use styled circular buttons with icons and interactive feedback.
+    *   **Depends On:** P4-008, (Icon assets).
+
+*   **Task ID: P9-PDP-015**
+    *   **Description:** Style basic Navigation Icons in the `Navbar.tsx` (e.g., Cart icon, User Profile icon):
+        *   Use thin-line or minimal solid icons.
+        *   Style icons to be monochromatic or match a UI accent color.
+        *   Consider small circular backgrounds/clickable areas for icons in top corners if specified.
+    *   **File(s) to Create/Modify:** `components/layout/Navbar.tsx`.
+    *   **Test Criteria:** Navigation icons are minimalist and fit the "Xefag Aesthetic".
+    *   **Depends On:** P2-003, (Icon assets).
+
+*   **Task ID: P9-PDP-016**
+    *   **Description:** (If a Promo Banner is part of MVP homepage) Style Promo Banner on `app/(main)/page.tsx`:
+        *   Large panel with centered layout.
+        *   Large, bold, centered headline.
+        *   If it features product cards, they should appear "floating" (using the `ProductCard.tsx` style from P9-PDP-013).
+    *   **File(s) to Create/Modify:** Homepage component (`app/(main)/page.tsx`) or a specific PromoBanner component.
+    *   **Test Criteria:** Promo banner (if present) has a centered layout with large headline and consistently styled elements.
+    *   **Depends On:** (Existence of a promo banner section), P9-PDP-013.
+
+*   **Task ID: P9-PDP-017**
+    *   **Description:** Ensure key input fields (Login, Signup, Consultation Forms, Questionnaire Forms) have soft-rounded corners (e.g., `rounded-lg`) and clear focus states (e.g., border color change using an accent color).
+    *   **File(s) to Create/Modify:** `components/auth/LoginForm.tsx`, `SignupForm.tsx`, `ConsultationRequestForm.tsx`, `QuestionnaireForm.tsx`, `styles/globals.css` (for global input styling).
+    *   **Test Criteria:** Input fields across forms are rounded and provide clear visual feedback on focus.
+    *   **Depends On:** P2-004, P2-006, P6-006, P7-006, P9-PDP-002.
+
+#### D. General Polish & Responsiveness
+
+*   **Task ID: P9-PDP-018**
+    *   **Description:** Review overall padding and spacing on all key pages (Homepage, Product List, Product Detail, Cart, Checkout, Account pages) for generous spacing, ensuring elements are visually balanced.
+    *   **File(s) to Create/Modify:** Various page and layout components.
+    *   **Test Criteria:** Pages feel uncluttered, elements are well-spaced, adhering to the min 24px padding guideline where appropriate.
+    *   **Depends On:** Most previous P9-PDP tasks.
+
+*   **Task ID: P9-PDP-019**
+    *   **Description:** Ensure responsive design for all "Xefag" styled components and pages, especially the **Product Detail Page**.
+        *   The Product Detail Page layout should adapt gracefully: image might stack above content block on mobile.
+        *   Text sizes should adjust for readability on smaller screens.
+        *   Floating pills/badges should not cause overflow or awkward wrapping.
+        *   Navigation should be mobile-friendly.
+    *   **File(s) to Create/Modify:** All styled components and pages, using responsive prefixes (e.g., `md:` in Tailwind).
+    *   **Test Criteria:** All styled elements and pages look good and are functional on common mobile and desktop screen sizes. No horizontal scrollbars due to styling.
+    *   **Depends On:** Most previous P9-PDP tasks.
+
+*   **Task ID: P9-PDP-020**
+    *   **Description:** Add simple loading indicators for page navigations (e.g., using Next.js `loading.tsx`) and ensure they don't clash with the Xefag aesthetic (e.g., a simple centered spinner with an accent color).
+    *   **File(s) to Create/Modify:** `app/loading.tsx`, potentially section-specific `loading.tsx` files.
+    *   **Test Criteria:** A visually non-intrusive loading state is visible during data fetching or route transitions.
+    *   **Depends On:** P9-PDP-002.
+---
+
+---
+Okay, let's break down the "Medicare Pharmacy Hero Section" design spec into granular, testable tasks for your LLM engineer. This will be a new set of tasks, likely part of a new phase or a sub-phase focusing on the Homepage.
+
+---
+
+
+## Phase 10: Homepage Hero Banner - "Medicare Pharmacy Hero Section"
+
+**Prerequisites for this Section:**
+*   A modern sans-serif font (e.g., Inter, Helvetica Neue Bold) is selected and configured.
+*   Tailwind CSS is set up.
+*   SVG icons for "document/prescription", "delivery", "genuine medicines" are available.
+*   An image of a delivery person with a product/branded box is available.
+
+---
+
+#### A. Basic Structure & Layout
+
+*   **Task ID: HB-001**
+    *   **Description:** Create a new `HeroBanner` component file.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx` (or similar path).
+    *   **Test Criteria:** Component file exists and can be imported into the homepage.
+    *   **Depends On:** None.
+
+*   **Task ID: HB-002**
+    *   **Description:** Add the `HeroBanner` component to the homepage (`app/(main)/page.tsx`).
+    *   **File(s) to Create/Modify:** `app/(main)/page.tsx`, `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** A placeholder text from `HeroBanner.tsx` (e.g., "Hero Banner Here") appears on the homepage.
+    *   **Depends On:** HB-001.
+
+*   **Task ID: HB-003**
+    *   **Description:** Implement the full-width hero block container within `HeroBanner.tsx`.
+        *   Set it to span 100% width.
+        *   Set a minimum height of 60% of the viewport height (e.g., `min-h-[60vh]`).
+        *   Add top and bottom padding of at least 48px (e.g., `py-12`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** The hero banner area occupies the specified width and minimum height, with visible vertical padding. Content inside will be constrained by this padding.
+    *   **Depends On:** HB-002.
+
+*   **Task ID: HB-004**
+    *   **Description:** Implement a two-column flex layout (or grid) within the hero block for desktop.
+        *   Left column placeholder: "Text Content Here".
+        *   Right column placeholder: "Visual Anchor Here".
+        *   Ensure it collapses to a single, stacked column on mobile (e.g., using Tailwind's `md:flex-row flex-col`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** On desktop, two placeholder texts appear side-by-side. On mobile, they stack vertically.
+    *   **Depends On:** HB-003.
+
+#### B. Color & Visual Style
+
+*   **Task ID: HB-005**
+    *   **Description:** Apply the solid lime green background color (e.g., `#A7F142` or similar, define as `bg-hero-lime` in Tailwind config) to the main hero block container.
+    *   **File(s) to Create/Modify:** `tailwind.config.js` (add color), `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** The hero banner area now has the specified lime green background.
+    *   **Depends On:** HB-003.
+
+*   **Task ID: HB-006**
+    *   **Description:** Style an *inner container* within the hero block (if needed for rounded edges separate from full bleed background) or the hero block itself to have rounded edges (border-radius: 32px, e.g., `rounded-[32px]`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** The lime green background area (or a container within it holding the content) has visibly rounded corners.
+    *   **Depends On:** HB-005.
+
+*   **Task ID: HB-007** (Optional as per spec, can be skipped for MVP)
+    *   **Description:** Apply a soft radial gradient overlay to the hero block background for depth.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx` (using Tailwind gradient utilities or custom CSS).
+    *   **Test Criteria:** A subtle radial gradient is visible on the lime green background.
+    *   **Depends On:** HB-005.
+
+#### C. Typography & Text Content (Left Column)
+
+*   **Task ID: HB-008**
+    *   **Description:** Add the main headline text (e.g., "Pharmacy Delivered, Fast & Easy") to the left column.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Headline text appears in the left column.
+    *   **Depends On:** HB-004.
+
+*   **Task ID: HB-009**
+    *   **Description:** Style the main headline:
+        *   Font: Bold, modern sans-serif (ensure project default or specify).
+        *   Size: ~64px on desktop (e.g., `text-6xl`), responsive scaling for smaller screens.
+        *   Color: Dark forest green (e.g., `#1A3400`, define as `text-hero-dark-green` in Tailwind config).
+    *   **File(s) to Create/Modify:** `tailwind.config.js` (add color), `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Headline text is large, bold, uses the dark forest green color, and scales down reasonably on smaller viewports.
+    *   **Depends On:** HB-008.
+
+*   **Task ID: HB-010**
+    *   **Description:** Add the subtext/description paragraph (e.g., "Get your prescriptions and pharmacy essentials delivered right to your doorstep with Medicare Pharmacy. Quick, reliable, and always genuine.") to the left column, below the headline.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Subtext paragraph appears below the headline in the left column.
+    *   **Depends On:** HB-008.
+
+*   **Task ID: HB-011**
+    *   **Description:** Style the subtext/description paragraph:
+        *   Font-size: 16–18px (e.g., `text-lg`).
+        *   Line-height: 1.5–1.75 (e.g., `leading-relaxed`).
+        *   Max-width: ~400px for readability (e.g., `max-w-md`).
+        *   Color: `text-hero-dark-green` (or slightly lighter variant if needed for contrast on lime).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Subtext paragraph is styled for readability with appropriate size, line height, max width, and color.
+    *   **Depends On:** HB-009 (for color definition if reused), HB-010.
+
+#### D. Visual Anchor (Right Column)
+
+*   **Task ID: HB-012**
+    *   **Description:** Add the placeholder image of the delivery person holding a package to the right column. Ensure it's centrally aligned within its column.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx` (using an `<img>` tag or Next.js `<Image>` component).
+    *   **Test Criteria:** The image appears in the right column and is centered.
+    *   **Depends On:** HB-004, (Image asset ready).
+
+*   **Task ID: HB-013**
+    *   **Description:** (Optional based on image and design preference) Adjust image styling so the figure partially overlaps or breaks the grid slightly to feel dynamic (might involve negative margins or absolute positioning relative to its column).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Image has a more dynamic placement, potentially extending slightly outside its strict column boundaries if desired.
+    *   **Depends On:** HB-012.
+
+*   **Task ID: HB-014**
+    *   **Description:** Add a label badge (e.g., "Medicare") above or near the person image for brand recall. Style it simply for now (e.g., small text, perhaps on a slightly contrasting background pill).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** "Medicare" (or brand name) label is visible near the delivery person image.
+    *   **Depends On:** HB-012.
+
+#### E. Interactive Elements - Call to Action Card
+
+*   **Task ID: HB-015**
+    *   **Description:** Create the basic structure for the "Upload Prescription" floating card within the left column (or positioned strategically).
+        *   Placeholder for icon.
+        *   Placeholder for "Upload prescription" headline.
+        *   Placeholder for "Order Via Prescription" button.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Placeholder elements for the CTA card are visible.
+    *   **Depends On:** HB-004.
+
+*   **Task ID: HB-016**
+    *   **Description:** Style the "Upload Prescription" card container:
+        *   White or very pale background (e.g., `bg-white` or `bg-gray-50`).
+        *   Rounded corners (border-radius: 20px, e.g., `rounded-xl` or `rounded-[20px]`).
+        *   Light drop shadow (e.g., `shadow-lg`).
+        *   Add padding within the card (e.g., `p-6`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** The CTA card has a styled background, rounded corners, shadow, and internal padding.
+    *   **Depends On:** HB-015.
+
+*   **Task ID: HB-017**
+    *   **Description:** Add the icon (document or prescription symbol) to the "Upload Prescription" card. Style it appropriately (size, color).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Icon is visible and styled within the CTA card.
+    *   **Depends On:** HB-016, (Icon asset ready).
+
+*   **Task ID: HB-018**
+    *   **Description:** Add and style the short headline "Upload prescription" within its card.
+        *   Font size appropriate for a card headline (e.g., `text-xl font-semibold`).
+        *   Color: `text-hero-dark-green` or similar.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Headline within the CTA card is styled.
+    *   **Depends On:** HB-016, HB-009 (for color).
+
+*   **Task ID: HB-019**
+    *   **Description:** Add and style the CTA Button "Order Via Prescription" within its card:
+        *   Background color: Green (e.g., `#007B3E`, define as `bg-hero-cta-green` in Tailwind).
+        *   Text color: White (`text-white`).
+        *   Rounded corners (e.g., `rounded-md` or `rounded-lg`).
+        *   Padding (e.g., `px-6 py-3`).
+        *   Bold text.
+    *   **File(s) to Create/Modify:** `tailwind.config.js` (add color), `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** The button within the CTA card is styled with green background, white text, and appropriate padding/rounding.
+    *   **Depends On:** HB-016.
+
+#### F. Supporting Features (Bottom Icons)
+
+*   **Task ID: HB-020**
+    *   **Description:** Create the container for the mini feature icons, positioned beneath the subtext in the left column. Use a flex layout with horizontal alignment.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** A flex container for feature icons is present below the subtext.
+    *   **Depends On:** HB-011.
+
+*   **Task ID: HB-021**
+    *   **Description:** Add the first feature: "Delivery to your doorstep" (icon + label).
+        *   Icon: Small (20–24px).
+        *   Label: 14–16px font (e.g., `text-base`), muted dark green color (e.g., a slightly lighter shade of `text-hero-dark-green` or `text-hero-dark-green/80`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** First feature icon and label appear, styled.
+    *   **Depends On:** HB-020, (Icon asset ready).
+
+*   **Task ID: HB-022**
+    *   **Description:** Add the second feature: "100% Genuine Medicines" (icon + label), styled identically to the first.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Second feature icon and label appear, styled.
+    *   **Depends On:** HB-021, (Icon asset ready).
+
+*   **Task ID: HB-023**
+    *   **Description:** Apply flex layout properties to the feature icons container: even spacing (e.g., `gap-6`) and center alignment of items (icon + text block).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Feature icons and labels are horizontally aligned with even spacing between them and items are vertically centered within their group.
+    *   **Depends On:** HB-022.
+
+#### G. Responsiveness
+
+*   **Task ID: HB-024**
+    *   **Description:** Implement responsiveness for mobile/tablet:
+        *   Ensure columns stack vertically (already done in HB-004, verify).
+        *   Center-align all content (headline, subtext, feature icons, image, CTA card) when stacked.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** On mobile, all content within the hero banner is center-aligned.
+    *   **Depends On:** HB-004, HB-023, HB-016, HB-012.
+
+*   **Task ID: HB-025**
+    *   **Description:** Adjust hero block height on mobile to ~50vh (e.g., `min-h-[50vh] md:min-h-[60vh]`).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Hero banner height is reduced on mobile viewports.
+    *   **Depends On:** HB-003.
+
+*   **Task ID: HB-026**
+    *   **Description:** Verify CTA card and image retain prominence on mobile (i.e., they are not overly shrunk or obscured). Adjust sizes/margins if necessary for mobile.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** CTA card and image are clearly visible and appropriately sized on mobile.
+    *   **Depends On:** HB-012, HB-016, HB-024.
+
+#### H. Optional Enhancements (Can be deferred post-MVP)
+
+*   **Task ID: HB-027** (Optional)
+    *   **Description:** Add subtle fade-in / scale-up animation for hero text (headline & subtext) on load.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx` (using CSS animations or a library like Framer Motion).
+    *   **Test Criteria:** Hero text animates smoothly on page load.
+    *   **Depends On:** HB-011.
+
+*   **Task ID: HB-028** (Optional)
+    *   **Description:** Add hover effect to the "Order Via Prescription" button in the CTA card: slight scale-up with adjusted shadow.
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** Hovering over the CTA button provides a scale and shadow feedback.
+    *   **Depends On:** HB-019.
+
+*   **Task ID: HB-029** (Optional)
+    *   **Description:** Consider adding a floating leaf or medical cross icon in the background for subtle brand texture (using absolute positioning and z-index).
+    *   **File(s) to Create/Modify:** `components/homepage/HeroBanner.tsx`.
+    *   **Test Criteria:** A subtle decorative icon appears in the background of the hero section.
+    *   **Depends On:** HB-005, (Icon asset ready).
 
 ---
 

@@ -73,9 +73,13 @@ export default function CartPage() {
                       </h3>
                       <p className="ml-4">€{(item.product?.price || 0) * item.quantity}</p>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">
-                      €{item.product?.price} each
-                    </p>
+                    {/* Product Options */}
+                    {(item.dosage || item.tablet_count) && (
+                      <div className="mt-1 text-sm text-gray-500 flex gap-4">
+                        {item.dosage && <span>Dosage: {item.dosage}mg</span>}
+                        {item.tablet_count && <span>Tablets: {item.tablet_count}</span>}
+                      </div>
+                    )}
                   </div>
 
                   {/* Quantity Controls */}
@@ -84,7 +88,8 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                        className="p-2 text-gray-600 hover:text-gray-700"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                        aria-label="Decrease quantity"
                       >
                         <MinusIcon className="h-4 w-4" />
                       </button>
@@ -92,7 +97,8 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                        className="p-2 text-gray-600 hover:text-gray-700"
+                        className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                        aria-label="Increase quantity"
                       >
                         <PlusIcon className="h-4 w-4" />
                       </button>

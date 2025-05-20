@@ -7,7 +7,7 @@ import { Cart, CartItem, Product } from '@/lib/types'
 interface CartContextType {
   cart: Cart
   loading: boolean
-  addToCart: (product: Product, quantity?: number) => Promise<void>
+  addToCart: (product: Product, quantity?: number, questionnaireApprovalId?: string, dosage?: number, tablet_count?: number) => Promise<void>
   removeFromCart: (productId: string) => Promise<void>
   updateQuantity: (productId: string, quantity: number) => Promise<void>
   clearCart: () => Promise<void>
@@ -54,7 +54,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function addToCart(product: Product, quantity = 1) {
+  async function addToCart(product: Product, quantity = 1, questionnaireApprovalId?: string, dosage?: number, tablet_count?: number) {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -66,14 +66,42 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid product')
       }
 
+      // For questionnaire products, require an approval ID
+      if (product.category === 'questionnaire_prescription' && !questionnaireApprovalId) {
+        throw new Error('Questionnaire approval is required for this product')
+      }
+
+      // Verify the questionnaire approval if provided
+      if (questionnaireApprovalId) {
+        const { data: approval, error: approvalError } = await supabase
+          .from('questionnaire_approvals')
+          .select('status')
+          .eq('id', questionnaireApprovalId)
+          .eq('user_id', session.user.id)
+          .eq('product_id', product.id)
+          .single()
+
+        if (approvalError) {
+          console.error('Approval verification error:', approvalError)
+          throw new Error(`Failed to verify questionnaire approval: ${approvalError.message}`)
+        }
+
+        if (!approval || approval.status !== 'approved') {
+          throw new Error('Invalid or unapproved questionnaire')
+        }
+      }
+
       const { data: existingItem, error: fetchError } = await supabase
         .from('cart_items')
         .select('*')
         .eq('product_id', product.id)
+        .eq('dosage', dosage ?? null)
+        .eq('tablet_count', tablet_count ?? null)
         .single()
 
       if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-        throw fetchError
+        console.error('Fetch existing item error:', fetchError)
+        throw new Error(`Failed to check existing cart item: ${fetchError.message}`)
       }
 
       if (existingItem) {
@@ -84,20 +112,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           .insert({
             product_id: product.id,
             quantity,
-            user_id: session.user.id // Explicitly set user_id
+            user_id: session.user.id,
+            questionnaire_approval_id: questionnaireApprovalId,
+            dosage,
+            tablet_count
           })
 
         if (insertError) {
-          console.error('Database error:', insertError)
-          throw new Error('Failed to add item to cart')
+          console.error('Insert cart item error:', insertError)
+          throw new Error(`Failed to add item to cart: ${insertError.message}`)
         }
       }
 
       await fetchCart()
     } catch (error) {
       console.error('Error adding to cart:', error)
-      // Re-throw the error so the component can handle it
-      throw error instanceof Error ? error : new Error('Failed to add item to cart')
+      // Re-throw the error with more context
+      if (error instanceof Error) {
+        throw error
+      } else if (typeof error === 'object' && error !== null) {
+        throw new Error(`Database error: ${JSON.stringify(error)}`)
+      } else {
+        throw new Error('Failed to add item to cart')
+      }
     }
   }
 
