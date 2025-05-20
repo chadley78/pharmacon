@@ -9,6 +9,7 @@ import { UserIcon } from '@heroicons/react/24/outline'
 
 export default function Navbar() {
   const [session, setSession] = useState<unknown>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -16,6 +17,9 @@ export default function Navbar() {
     // Check initial auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
+      if (session) {
+        checkAdminStatus(session.user.id)
+      }
     })
 
     // Listen for auth changes
@@ -23,10 +27,25 @@ export default function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      if (session) {
+        checkAdminStatus(session.user.id)
+      } else {
+        setIsAdmin(false)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [supabase.auth])
+
+  const checkAdminStatus = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+    
+    setIsAdmin(!!data && !error)
+  }
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -54,6 +73,14 @@ export default function Navbar() {
             </div>
             {session ? (
               <>
+                {isAdmin && (
+                  <Link
+                    href="/admin/questionnaires"
+                    className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
                 <Link
                   href="/account"
                   className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-900 hover:bg-yellow-400 hover:text-black transition-colors duration-150 shadow-sm focus:outline-none"
