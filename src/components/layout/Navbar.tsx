@@ -38,12 +38,14 @@ export default function Navbar() {
   }, [supabase.auth])
 
   const checkAdminStatus = async (userId: string) => {
+    console.log('Checking admin status for user:', userId)
     const { data, error } = await supabase
       .from('admin_users')
       .select('*')
       .eq('user_id', userId)
       .single()
     
+    console.log('Admin check result:', { data, error })
     setIsAdmin(!!data && !error)
   }
 
