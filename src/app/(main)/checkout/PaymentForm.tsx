@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
@@ -18,6 +18,12 @@ function CheckoutForm({ onBack, shippingAddress, billingAddress }: {
   const { clearCart } = useCart()
   const [error, setError] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
+
+  const addressesRef = useRef({ shippingAddress, billingAddress })
+
+  useEffect(() => {
+    addressesRef.current = { shippingAddress, billingAddress }
+  }, [shippingAddress, billingAddress])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -136,50 +142,53 @@ function CheckoutForm({ onBack, shippingAddress, billingAddress }: {
   )
 }
 
-export default function PaymentForm() {
+// Add props interface
+interface PaymentFormProps {
+  shippingAddress: Address
+  billingAddress: Address
+  onBack: () => void
+}
+
+// Update the component to accept props
+export default function PaymentForm({ shippingAddress, billingAddress, onBack }: PaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    console.log('PaymentForm mounted with addresses:', {
-      shippingAddress,
-      billingAddress
-    })
-    // Create PaymentIntent as soon as the page loads
-    const createPaymentIntent = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-        
-        const response = await fetch('/api/create-payment-intent', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to initialize payment')
-        }
-
-        if (data.error) {
-          setError(data.error)
-        } else {
-          setClientSecret(data.clientSecret)
-        }
-      } catch (err) {
-        console.error('Payment initialization error:', err)
-        setError(err instanceof Error ? err.message : 'Failed to initialize payment')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     createPaymentIntent()
-  }, [shippingAddress, billingAddress])
+  }, [])
+
+  const createPaymentIntent = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to initialize payment')
+      }
+
+      if (data.error) {
+        setError(data.error)
+      } else {
+        setClientSecret(data.clientSecret)
+      }
+    } catch (err) {
+      console.error('Payment initialization error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to initialize payment')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -239,7 +248,7 @@ export default function PaymentForm() {
       }}
     >
       <CheckoutForm 
-        onBack={() => {}} 
+        onBack={onBack}
         shippingAddress={shippingAddress}
         billingAddress={billingAddress}
       />

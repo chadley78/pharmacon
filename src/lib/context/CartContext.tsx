@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Cart, CartItem, Product } from '@/lib/types'
 
@@ -21,11 +21,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   // Fetch cart items on mount and when auth state changes
-  useEffect(() => {
-    fetchCart()
-  }, [fetchCart])
-
-  async function fetchCart() {
+  const fetchCart = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -52,7 +48,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    fetchCart()
+  }, [fetchCart])
 
   async function addToCart(product: Product, quantity = 1, questionnaireApprovalId?: string, dosage?: number, tablet_count?: number) {
     try {

@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { Product } from '@/lib/types'
 import ConsultationRequestForm from '@/components/forms/ConsultationRequestForm'
 
 interface ConsultationPageProps {

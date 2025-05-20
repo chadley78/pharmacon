@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 export default function HeroBanner() {
   return (
@@ -18,9 +19,11 @@ export default function HeroBanner() {
           </div>
           {/* Right Column */}
           <div className="flex-1 flex flex-col justify-end items-center min-h-[320px] md:min-h-[480px]">
-            <img
+            <Image
               src="https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/imagedelivery%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L2ltYWdlZGVsaXZlcnkgMS5wbmciLCJpYXQiOjE3NDc3NTczMjAsImV4cCI6MTc3OTI5MzMyMH0.CelTa5uUBSHTPG2V4GrGHp96zGI8PUtuQqOxzU2gbYs"
               alt="Delivery Person"
+              width={320}
+              height={480}
               className="w-[320px] md:w-[480px] h-auto object-contain"
             />
           </div>

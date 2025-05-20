@@ -106,7 +106,7 @@ export default function SuccessPage() {
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-900">Order not found</h1>
           <p className="mt-2 text-sm text-gray-500">
-            We couldn't find your order. Please contact support if you believe this is an error.
+            We couldn&apos;t find your order. Please contact support if you believe this is an error.
           </p>
           <div className="mt-6">
             <Link
@@ -126,7 +126,7 @@ export default function SuccessPage() {
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-gray-900">Thank you for your order!</h1>
         <p className="mt-2 text-sm text-gray-500">
-          We&apos;ve received your order and it's being processed.
+          We&apos;ve received your order and it&apos;s being processed.
         </p>
       </div>
 

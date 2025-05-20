@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import HeroBanner from '@/components/homepage/HeroBanner';
 
 export default function HomePage() {
