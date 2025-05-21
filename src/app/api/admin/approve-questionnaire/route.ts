@@ -3,35 +3,28 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const { approvalId, status } = await request.json()
-    
-    if (!approvalId || !status || !['approved', 'rejected'].includes(status)) {
+    const { approvalId, action } = await request.json()
+    const supabase = await createAdminClient()
+
+    if (!approvalId || !action || !['approved', 'rejected'].includes(action)) {
       return NextResponse.json(
-        { error: 'Invalid request: approvalId and status (approved/rejected) are required' },
+        { error: 'Invalid request parameters' },
         { status: 400 }
       )
     }
 
-    const supabase = createAdminClient()
-    
     const { error } = await supabase
       .from('questionnaire_approvals')
-      .update({ status })
+      .update({ status: action })
       .eq('id', approvalId)
 
-    if (error) {
-      console.error('Error updating questionnaire approval:', error)
-      return NextResponse.json(
-        { error: 'Failed to update questionnaire status' },
-        { status: 500 }
-      )
-    }
+    if (error) throw error
 
     return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('Error in approve-questionnaire route:', err)
+  } catch (error) {
+    console.error('Error updating questionnaire approval:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to update questionnaire approval' },
       { status: 500 }
     )
   }

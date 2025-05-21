@@ -7,6 +7,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
+import Modal from '@/components/ui/Modal'
+import QuestionnaireForm from '@/components/forms/QuestionnaireForm'
+import Toast from '@/components/ui/Toast'
 
 interface ProductDetailsProps {
   product: Product
@@ -14,13 +17,20 @@ interface ProductDetailsProps {
 
 interface QuestionnaireApproval {
   id: string
-  status: 'pending_approval' | 'approved' | 'rejected'
+  status: 'approved' | 'rejected'
+}
+
+interface ToastState {
+  message: string
+  type: 'success' | 'error'
+  show: boolean
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [questionnaireApproval, setQuestionnaireApproval] = useState<QuestionnaireApproval | null>(null)
+  const [isQuestionnaireModalOpen, setIsQuestionnaireModalOpen] = useState(false)
   const { addToCart } = useCart()
   const router = useRouter()
   const supabase = createClient()
@@ -29,6 +39,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const dosageOptions = [25, 50, 100]
   const tabletOptions = [4, 8, 12]
   const [quantity, setQuantity] = useState(1)
+  const [toast, setToast] = useState<ToastState>({ message: '', type: 'success', show: false })
 
   const getGradientClass = (category: string) => {
     switch (category) {
@@ -74,14 +85,29 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     setLoading(true)
     setError(null)
     try {
-      if (product.category === 'questionnaire_prescription' && questionnaireApproval?.status === 'approved') {
+      if (product.category === 'questionnaire_prescription') {
+        if (!questionnaireApproval || questionnaireApproval.status !== 'approved') {
+          setIsQuestionnaireModalOpen(true)
+          setLoading(false)
+          return
+        }
         await addToCart(product, quantity, questionnaireApproval.id, selectedDosage, selectedTablets)
       } else {
         await addToCart(product, quantity, undefined, selectedDosage, selectedTablets)
       }
+      setToast({
+        message: 'Product added to cart successfully!',
+        type: 'success',
+        show: true
+      })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add item to cart'
       setError(errorMessage)
+      setToast({
+        message: errorMessage,
+        type: 'error',
+        show: true
+      })
       if (errorMessage.includes('sign in')) {
         router.push('/login')
       }
@@ -94,56 +120,85 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     router.push(`/consultations/${product.id}`)
   }
 
-  const handleStartQuestionnaire = () => {
-    router.push(`/questionnaire/${product.id}`)
+  const handleCloseQuestionnaireModal = () => {
+    setIsQuestionnaireModalOpen(false)
+  }
+
+  const handleQuestionnaireSubmit = async (data: { answers: any; productId: string }) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/submit-questionnaire', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login')
+          return
+        }
+        throw new Error(result.error || 'Failed to submit questionnaire')
+      }
+
+      if (result.status === 'approved') {
+        setIsQuestionnaireModalOpen(false)
+        await addToCart(product, quantity, result.approvalId, selectedDosage, selectedTablets)
+        setToast({
+          message: 'Product added to cart successfully!',
+          type: 'success',
+          show: true
+        })
+      } else {
+        setToast({
+          message: 'Your questionnaire was rejected. Please try again or contact support.',
+          type: 'error',
+          show: true
+        })
+        setIsQuestionnaireModalOpen(false)
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to submit questionnaire'
+      setError(errorMessage)
+      setToast({
+        message: errorMessage,
+        type: 'error',
+        show: true
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getButtonText = () => {
     if (product.category === 'doctor_consultation') {
       return 'Request Consultation'
     }
-    if (product.category === 'questionnaire_prescription') {
-      if (questionnaireApproval?.status === 'approved') {
-        return 'Add to Cart'
-      }
-      if (questionnaireApproval?.status === 'pending_approval') {
-        return 'Questionnaire Pending Approval'
-      }
-      if (questionnaireApproval?.status === 'rejected') {
-        return 'Questionnaire Rejected'
-      }
-      return 'Answer Questions'
-    }
     return 'Add to Cart'
   }
 
   const isButtonDisabled = () => {
     if (loading) return true
-    if (product.category === 'questionnaire_prescription') {
-      if (questionnaireApproval?.status === 'pending_approval') return true
-      if (questionnaireApproval?.status === 'rejected') return true
-    }
     return false
   }
 
   const handleButtonClick = () => {
     if (product.category === 'doctor_consultation') {
       handleRequestConsultation()
-    } else if (product.category === 'questionnaire_prescription') {
-      if (questionnaireApproval?.status === 'approved') {
-        handleAddToCart()
-      } else if (!questionnaireApproval || questionnaireApproval.status === 'rejected') {
-        handleStartQuestionnaire()
-      }
     } else {
       handleAddToCart()
     }
   }
 
   return (
-    <div className="w-full min-h-screen bg-white relative overflow-visible">
+    <div className={`min-h-screen bg-gradient-to-b ${getGradientClass(product.category)}`}>
       {/* Gradient/Image Section */}
-      <div className={`w-full bg-gradient-to-br ${getGradientClass(product.category)} flex flex-col items-center justify-center`} style={{ minHeight: '500px' }}>
+      <div className="w-full bg-gradient-to-br flex flex-col items-center justify-center" style={{ minHeight: '500px' }}>
         <div className="relative z-10 flex justify-center w-full" style={{ paddingBottom: '100px' }}>
           {product.image_url ? (
             <Image
@@ -174,76 +229,71 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </p>
           </div>
           <div className="mt-6">
-            {(product.category === 'direct_purchase' || (product.category === 'questionnaire_prescription' && questionnaireApproval?.status === 'approved')) && (
-              <div className="mt-6">
-                {/* Dosage Option */}
-                <div>
-                  <div className="text-sm md:text-base font-light mb-2 text-gray-600">Dosage (mg)</div>
-                  <div className="flex gap-3">
-                    {dosageOptions.map((dose) => (
-                      <button
-                        key={dose}
-                        type="button"
-                        onClick={() => setSelectedDosage(dose)}
-                        className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
-                          ${selectedDosage === dose
-                            ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
-                        `}
-                      >
-                        {dose}mg
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {/* Tablet Count Option */}
-                <div className="mt-4">
-                  <div className="text-sm md:text-base font-light mb-2 text-gray-600">Number of Tablets</div>
-                  <div className="flex gap-3">
-                    {tabletOptions.map((count) => (
-                      <button
-                        key={count}
-                        type="button"
-                        onClick={() => setSelectedTablets(count)}
-                        className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
-                          ${selectedTablets === count
-                            ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
-                        `}
-                      >
-                        {count}
-                      </button>
-                    ))}
-                  </div>
+            <div className="mt-6">
+              {/* Dosage Option */}
+              <div>
+                <div className="text-sm md:text-base font-light mb-2 text-gray-600">Dosage (mg)</div>
+                <div className="flex gap-3">
+                  {dosageOptions.map((dose) => (
+                    <button
+                      key={dose}
+                      type="button"
+                      onClick={() => setSelectedDosage(dose)}
+                      className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
+                        ${selectedDosage === dose
+                          ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
+                      `}
+                    >
+                      {dose}mg
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
-          {/* Quantity Selector */}
-          {(product.category === 'direct_purchase' || (product.category === 'questionnaire_prescription' && questionnaireApproval?.status === 'approved')) && (
-            <div className="mt-8 flex items-center gap-4">
-              <span className="text-sm text-gray-600">Quantity</span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
-                  aria-label="Decrease quantity"
-                >
-                  <MinusIcon className="h-4 w-4" />
-                </button>
-                <span className="px-3 text-gray-900 font-medium">{quantity}</span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
-                  aria-label="Increase quantity"
-                >
-                  <PlusIcon className="h-4 w-4" />
-                </button>
+              {/* Tablet Count Option */}
+              <div className="mt-4">
+                <div className="text-sm md:text-base font-light mb-2 text-gray-600">Number of Tablets</div>
+                <div className="flex gap-3">
+                  {tabletOptions.map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setSelectedTablets(count)}
+                      className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
+                        ${selectedTablets === count
+                          ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
+                      `}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
+          </div>
+          <div className="mt-8 flex items-center gap-4">
+            <span className="text-sm text-gray-600">Quantity</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                aria-label="Decrease quantity"
+              >
+                <MinusIcon className="h-4 w-4" />
+              </button>
+              <span className="px-3 text-gray-900 font-medium">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity(q => q + 1)}
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                aria-label="Increase quantity"
+              >
+                <PlusIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
           <div className="mt-8">
             {error && (
               <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-md">
@@ -274,13 +324,31 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               Your questionnaire was rejected. Please try again or contact support for more information.
             </div>
           )}
-          {questionnaireApproval?.status === 'pending_approval' && (
-            <div className="mt-4 p-4 text-sm text-yellow-700 bg-yellow-100 rounded-md">
-              Your questionnaire is pending approval. We will notify you once it has been reviewed.
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Modal */}
+      <Modal 
+        isOpen={isQuestionnaireModalOpen} 
+        onClose={handleCloseQuestionnaireModal}
+      >
+        <div className="p-6 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">Questionnaire for {product.name}</h2>
+          <QuestionnaireForm 
+            productId={product.id}
+            onSubmit={handleQuestionnaireSubmit}
+          />
+        </div>
+      </Modal>
+
+      {/* Toast */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(prev => ({ ...prev, show: false }))}
+        />
+      )}
     </div>
   )
 } 

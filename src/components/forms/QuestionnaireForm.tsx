@@ -1,27 +1,27 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Product } from '@/lib/types'
 
 interface QuestionnaireFormProps {
-  product: Product
+  productId: string;
+  onSubmit: (data: QuestionnaireData) => Promise<void>;
 }
 
-interface FormData {
-  over18: boolean
-  noHeartProblems: boolean
-  noNitrates: boolean
-  noLiverProblems: boolean
-  noRecentStroke: boolean
+interface QuestionnaireData {
+  answers: {
+    over18: boolean;
+    noHeartProblems: boolean;
+    noNitrates: boolean;
+    noLiverProblems: boolean;
+    noRecentStroke: boolean;
+  };
+  productId: string;
 }
 
-export default function QuestionnaireForm({ product }: QuestionnaireFormProps) {
+export default function QuestionnaireForm({ productId, onSubmit }: QuestionnaireFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<QuestionnaireData['answers']>({
     over18: false,
     noHeartProblems: false,
     noNitrates: false,
@@ -29,46 +29,18 @@ export default function QuestionnaireForm({ product }: QuestionnaireFormProps) {
     noRecentStroke: false
   })
 
-  const handleCheckboxChange = (field: keyof FormData) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
-      const response = await fetch('/api/submit-questionnaire', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          answers: formData
-        }),
+      await onSubmit({
+        answers: formData,
+        productId
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit questionnaire')
-      }
-
-      // Redirect to account page after successful submission
-      router.push('/account/questionnaires')
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to submit questionnaire'
-      setError(errorMessage)
-      
-      // If the error is about authentication, redirect to login
-      if (errorMessage.includes('Unauthorized')) {
-        router.push('/login')
-      }
+      setError(err instanceof Error ? err.message : 'Failed to submit questionnaire')
     } finally {
       setLoading(false)
     }
@@ -82,103 +54,92 @@ export default function QuestionnaireForm({ product }: QuestionnaireFormProps) {
         </div>
       )}
 
-      <div className="space-y-4">
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="over18"
-              checked={formData.over18}
-              onChange={() => handleCheckboxChange('over18')}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="ml-3">
-            <label htmlFor="over18" className="text-sm font-medium text-gray-700">
-              I confirm that I am over 18 years of age
-            </label>
-          </div>
-        </div>
-
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="noHeartProblems"
-              checked={formData.noHeartProblems}
-              onChange={() => handleCheckboxChange('noHeartProblems')}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="ml-3">
-            <label htmlFor="noHeartProblems" className="text-sm font-medium text-gray-700">
-              I do not have any heart problems or chest pain
-            </label>
-          </div>
-        </div>
-
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="noNitrates"
-              checked={formData.noNitrates}
-              onChange={() => handleCheckboxChange('noNitrates')}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="ml-3">
-            <label htmlFor="noNitrates" className="text-sm font-medium text-gray-700">
-              I am not taking any nitrate medications
-            </label>
-          </div>
-        </div>
-
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="noLiverProblems"
-              checked={formData.noLiverProblems}
-              onChange={() => handleCheckboxChange('noLiverProblems')}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="ml-3">
-            <label htmlFor="noLiverProblems" className="text-sm font-medium text-gray-700">
-              I do not have any liver problems
-            </label>
-          </div>
-        </div>
-
-        <div className="flex items-start">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="noRecentStroke"
-              checked={formData.noRecentStroke}
-              onChange={() => handleCheckboxChange('noRecentStroke')}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="ml-3">
-            <label htmlFor="noRecentStroke" className="text-sm font-medium text-gray-700">
-              I have not had a stroke or heart attack in the last 6 months
-            </label>
-          </div>
-        </div>
+      {/* Age Verification */}
+      <div className="space-y-2">
+        <label className="flex items-start space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.over18}
+            onChange={(e) => setFormData(prev => ({ ...prev, over18: e.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+            required
+          />
+          <span className="text-sm text-gray-700">
+            I confirm that I am over 18 years of age
+          </span>
+        </label>
       </div>
 
-      <div>
+      {/* Heart Problems */}
+      <div className="space-y-2">
+        <label className="flex items-start space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.noHeartProblems}
+            onChange={(e) => setFormData(prev => ({ ...prev, noHeartProblems: e.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+            required
+          />
+          <span className="text-sm text-gray-700">
+            I confirm that I do not have any heart problems
+          </span>
+        </label>
+      </div>
+
+      {/* Nitrate Medications */}
+      <div className="space-y-2">
+        <label className="flex items-start space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.noNitrates}
+            onChange={(e) => setFormData(prev => ({ ...prev, noNitrates: e.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+            required
+          />
+          <span className="text-sm text-gray-700">
+            I confirm that I am not taking any nitrate medications
+          </span>
+        </label>
+      </div>
+
+      {/* Liver Problems */}
+      <div className="space-y-2">
+        <label className="flex items-start space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.noLiverProblems}
+            onChange={(e) => setFormData(prev => ({ ...prev, noLiverProblems: e.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+            required
+          />
+          <span className="text-sm text-gray-700">
+            I confirm that I do not have any liver problems
+          </span>
+        </label>
+      </div>
+
+      {/* Recent Stroke/Heart Attack */}
+      <div className="space-y-2">
+        <label className="flex items-start space-x-3">
+          <input
+            type="checkbox"
+            checked={formData.noRecentStroke}
+            onChange={(e) => setFormData(prev => ({ ...prev, noRecentStroke: e.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+            required
+          />
+          <span className="text-sm text-gray-700">
+            I confirm that I have not had a stroke or heart attack in the last 6 months
+          </span>
+        </label>
+      </div>
+
+      {/* Submit Button */}
+      <div className="pt-4">
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white px-6 py-3 rounded-md text-base font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-yellow-400 text-black px-6 py-3 rounded-full text-base font-bold shadow-md hover:bg-yellow-300 hover:shadow-xl active:bg-yellow-500 active:scale-95 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {loading ? 'Submitting...' : 'Submit Questionnaire'}
         </button>

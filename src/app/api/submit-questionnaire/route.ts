@@ -3,72 +3,83 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    
-    // Check if user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // Validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (e) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
+
+    const { answers, productId } = body
+
+    // Validate required fields
+    if (!answers || !productId) {
+      return NextResponse.json(
+        { error: 'Missing required fields: answers and productId are required' },
+        { status: 400 }
+      )
+    }
+
+    // Handle both nested and flat answer structures
+    const questionnaireAnswers = answers?.answers || answers
+
+    // Validate questionnaire answers structure
+    if (typeof questionnaireAnswers !== 'object' || questionnaireAnswers === null) {
+      return NextResponse.json(
+        { error: 'Invalid questionnaire answers format' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = await createClient()
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    // Get request body
-    const body = await request.json()
-    const { productId, answers } = body
-
-    if (!productId || !answers) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
-    }
-
-    // Verify product exists and is a questionnaire product
-    const { data: product, error: productError } = await supabase
-      .from('products')
-      .select('category')
-      .eq('id', productId)
-      .single()
-
-    if (productError || !product || product.category !== 'questionnaire_prescription') {
-      return NextResponse.json(
-        { error: 'Invalid product' },
-        { status: 400 }
-      )
-    }
-
-    // Insert questionnaire approval
-    const { data, error } = await supabase
+    // Create questionnaire approval record with approved status
+    const { data: approval, error: insertError } = await supabase
       .from('questionnaire_approvals')
       .insert({
         user_id: user.id,
         product_id: productId,
-        questionnaire_answers: answers,
-        status: 'pending_approval'
+        questionnaire_answers: questionnaireAnswers,
+        status: 'approved' // Always approved for MVP
       })
       .select()
       .single()
 
-    if (error) {
-      console.error('Error submitting questionnaire:', error)
+    if (insertError) {
+      console.error('Error creating questionnaire approval:', insertError)
       return NextResponse.json(
-        { error: 'Failed to submit questionnaire' },
+        { error: 'Failed to create questionnaire approval' },
+        { status: 500 }
+      )
+    }
+
+    if (!approval) {
+      return NextResponse.json(
+        { error: 'Failed to create questionnaire approval' },
         { status: 500 }
       )
     }
 
     return NextResponse.json({
       success: true,
-      data: {
-        id: data.id,
-        status: data.status
-      }
+      approvalId: approval.id,
+      status: 'approved' // Consistent with database field name
     })
-
   } catch (error) {
-    console.error('Error in submit-questionnaire:', error)
+    console.error('Error submitting questionnaire:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

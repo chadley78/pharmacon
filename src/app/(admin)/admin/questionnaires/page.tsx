@@ -7,7 +7,7 @@ import { QuestionnaireApprovalActions } from './QuestionnaireApprovalActions'
 interface QuestionnaireApproval {
   id: string
   created_at: string
-  status: 'pending_approval' | 'approved' | 'rejected'
+  status: 'approved' | 'rejected'
   user_id: string
   questionnaire_answers: {
     over18: boolean
@@ -107,18 +107,12 @@ export default async function AdminQuestionnairesPage() {
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       approval.status === 'approved'
                         ? 'bg-green-100 text-green-800'
-                        : approval.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
                     }`}
                   >
-                    {approval.status === 'pending_approval'
-                      ? 'Pending Review'
-                      : approval.status === 'approved'
-                      ? 'Approved'
-                      : 'Rejected'}
+                    {approval.status === 'approved' ? 'Approved' : 'Rejected'}
                   </span>
-                  {approval.status === 'pending_approval' && (
+                  {approval.status === 'approved' && (
                     <QuestionnaireApprovalActions approvalId={approval.id} />
                   )}
                 </div>

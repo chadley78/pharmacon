@@ -1,14 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-type QuestionnaireApproval = {
+interface QuestionnaireApproval {
   id: string
   created_at: string
-  status: 'pending_approval' | 'approved' | 'rejected'
-  questionnaire_answers: Record<string, any>
+  status: 'approved' | 'rejected'
+  questionnaire_answers: {
+    over18: boolean
+    noHeartProblems: boolean
+    noNitrates: boolean
+    noLiverProblems: boolean
+    noRecentStroke: boolean
+  }
   product: {
     name: string
-    description: string
+    slug: string
   }
 }
 
@@ -76,15 +82,15 @@ export default async function QuestionnairesPage() {
                   })}
                 </p>
               </div>
-              <div>
-                <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                  approval.status === 'approved' 
-                    ? 'bg-green-100 text-green-800'
-                    : approval.status === 'pending_approval'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {approval.status.replace('_', ' ').toUpperCase()}
+              <div className="flex items-center gap-4">
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    approval.status === 'approved'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
+                  {approval.status === 'approved' ? 'Approved' : 'Rejected'}
                 </span>
               </div>
             </div>

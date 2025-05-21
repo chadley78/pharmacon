@@ -5,8 +5,12 @@ CREATE TABLE cart_items (
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   questionnaire_approval_id UUID REFERENCES questionnaire_approvals(id) ON DELETE SET NULL,
+  dosage INTEGER,
+  tablet_count INTEGER,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  -- Add unique constraint that includes dosage and tablet_count
+  UNIQUE(user_id, product_id, dosage, tablet_count)
 );
 
 -- Add RLS policies

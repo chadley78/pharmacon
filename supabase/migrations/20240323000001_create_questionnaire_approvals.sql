@@ -4,7 +4,7 @@ CREATE TABLE questionnaire_approvals (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   product_id UUID NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
   questionnaire_answers JSONB NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('pending_approval', 'approved', 'rejected')) DEFAULT 'pending_approval',
+  status TEXT NOT NULL CHECK (status IN ('approved', 'rejected')) DEFAULT 'approved',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
