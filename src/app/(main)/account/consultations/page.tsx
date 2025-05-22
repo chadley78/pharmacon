@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import { ConsultationRequestsList } from '@/components/ConsultationRequestsList'
 
 export default async function ConsultationsPage() {
@@ -39,7 +40,35 @@ export default async function ConsultationsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">My Consultations</h1>
-      <ConsultationRequestsList requests={consultationRequests || []} />
+      <Suspense fallback={
+        <div className="space-y-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white border border-gray-200 rounded-lg p-6 animate-pulse">
+              <div className="flex justify-between items-start mb-4">
+                <div className="space-y-2">
+                  <div className="h-6 w-48 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                </div>
+                <div className="h-6 w-24 bg-gray-200 rounded"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-48 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-40 bg-gray-200 rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-48 bg-gray-200 rounded"></div>
+                  <div className="h-4 w-40 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      }>
+        <ConsultationRequestsList requests={consultationRequests || []} />
+      </Suspense>
     </div>
   )
 } 

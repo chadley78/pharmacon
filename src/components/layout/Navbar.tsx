@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CartIcon from '@/components/cart/CartIcon'
 import { useRouter } from 'next/navigation'
@@ -64,11 +64,15 @@ export default function Navbar() {
               Pharmacon
             </Link>
             <div className="hidden sm:block w-64">
-              <SearchBar 
-                placeholder="Search products..."
-                className="w-full"
-                debounceMs={500}
-              />
+              <Suspense fallback={
+                <div className="w-full h-10 bg-gray-100 animate-pulse rounded-md" />
+              }>
+                <SearchBar 
+                  placeholder="Search products..."
+                  className="w-full"
+                  debounceMs={500}
+                />
+              </Suspense>
             </div>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">

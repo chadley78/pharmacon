@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { format } from 'date-fns'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { Suspense } from 'react'
 import { QuestionnaireApprovalActions } from './QuestionnaireApprovalActions'
 
 interface QuestionnaireApproval {
@@ -113,7 +114,15 @@ export default async function AdminQuestionnairesPage() {
                     {approval.status === 'approved' ? 'Approved' : 'Rejected'}
                   </span>
                   {approval.status === 'approved' && (
-                    <QuestionnaireApprovalActions approvalId={approval.id} />
+                    <Suspense fallback={
+                      <div className="flex gap-2">
+                        <button disabled className="px-2 py-1 bg-gray-200 text-gray-500 rounded cursor-not-allowed">
+                          Loading...
+                        </button>
+                      </div>
+                    }>
+                      <QuestionnaireApprovalActions approvalId={approval.id} />
+                    </Suspense>
                   )}
                 </div>
               </div>

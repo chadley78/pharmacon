@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface QuestionnaireApprovalActionsProps {
   approvalId: string
@@ -10,6 +10,7 @@ interface QuestionnaireApprovalActionsProps {
 export function QuestionnaireApprovalActions({ approvalId }: QuestionnaireApprovalActionsProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   async function handleApproval(status: 'approved' | 'rejected') {
     setIsLoading(true)

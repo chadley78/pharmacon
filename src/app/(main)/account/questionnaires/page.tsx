@@ -65,7 +65,6 @@ export default async function QuestionnairesPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">My Questionnaires</h1>
-      
       <div className="space-y-4">
         {questionnaireApprovals.map((approval: QuestionnaireApproval) => (
           <div key={approval.id} className="bg-white border border-gray-200 rounded-lg p-6">
@@ -94,7 +93,6 @@ export default async function QuestionnairesPage() {
                 </span>
               </div>
             </div>
-
             {approval.questionnaire_answers && (
               <div className="border-t border-gray-200 pt-4">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Your Answers</h3>

@@ -58,7 +58,6 @@ export default async function AccountLayout({
             </ul>
           </div>
         </nav>
-
         {/* Main Content */}
         <main className="flex-1">
           {children}
