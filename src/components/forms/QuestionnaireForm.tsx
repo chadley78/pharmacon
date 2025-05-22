@@ -57,81 +57,81 @@ export default function QuestionnaireForm({ productId, onSubmit }: Questionnaire
       {/* Age Verification */}
       <div className="space-y-2">
         <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={formData.over18}
+            <input
+              type="checkbox"
+              checked={formData.over18}
             onChange={(e) => setFormData(prev => ({ ...prev, over18: e.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
-            required
-          />
+              required
+            />
           <span className="text-sm text-gray-700">
-            I confirm that I am over 18 years of age
+              I confirm that I am over 18 years of age
           </span>
-        </label>
-      </div>
+            </label>
+        </div>
 
       {/* Heart Problems */}
       <div className="space-y-2">
         <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={formData.noHeartProblems}
+            <input
+              type="checkbox"
+              checked={formData.noHeartProblems}
             onChange={(e) => setFormData(prev => ({ ...prev, noHeartProblems: e.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
-            required
-          />
+              required
+            />
           <span className="text-sm text-gray-700">
             I confirm that I do not have any heart problems
           </span>
-        </label>
-      </div>
+            </label>
+        </div>
 
       {/* Nitrate Medications */}
       <div className="space-y-2">
         <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={formData.noNitrates}
+            <input
+              type="checkbox"
+              checked={formData.noNitrates}
             onChange={(e) => setFormData(prev => ({ ...prev, noNitrates: e.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
-            required
-          />
+              required
+            />
           <span className="text-sm text-gray-700">
             I confirm that I am not taking any nitrate medications
           </span>
-        </label>
-      </div>
+            </label>
+        </div>
 
       {/* Liver Problems */}
       <div className="space-y-2">
         <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={formData.noLiverProblems}
+            <input
+              type="checkbox"
+              checked={formData.noLiverProblems}
             onChange={(e) => setFormData(prev => ({ ...prev, noLiverProblems: e.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
-            required
-          />
+              required
+            />
           <span className="text-sm text-gray-700">
             I confirm that I do not have any liver problems
           </span>
-        </label>
-      </div>
+            </label>
+        </div>
 
       {/* Recent Stroke/Heart Attack */}
       <div className="space-y-2">
         <label className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={formData.noRecentStroke}
+            <input
+              type="checkbox"
+              checked={formData.noRecentStroke}
             onChange={(e) => setFormData(prev => ({ ...prev, noRecentStroke: e.target.checked }))}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
-            required
-          />
+              required
+            />
           <span className="text-sm text-gray-700">
             I confirm that I have not had a stroke or heart attack in the last 6 months
           </span>
-        </label>
+            </label>
       </div>
 
       {/* Submit Button */}

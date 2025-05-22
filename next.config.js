@@ -16,6 +16,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    // ... existing experimental options ...
+  }
 }
 
 module.exports = nextConfig 

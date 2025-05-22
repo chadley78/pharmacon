@@ -5,14 +5,14 @@ export async function POST(request: Request) {
   try {
     const { approvalId, action } = await request.json()
     const supabase = await createAdminClient()
-
+    
     if (!approvalId || !action || !['approved', 'rejected'].includes(action)) {
       return NextResponse.json(
         { error: 'Invalid request parameters' },
         { status: 400 }
       )
     }
-
+    
     const { error } = await supabase
       .from('questionnaire_approvals')
       .update({ status: action })

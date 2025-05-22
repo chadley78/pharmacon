@@ -1066,4 +1066,146 @@ Okay, let's break down the "Medicare Pharmacy Hero Section" design spec into gra
     *   **Depends On:** HB-005, (Icon asset ready).
 
 ---
+# Wednesday May 21st
+
+Okay, let's revise the plan for **Product Type (c) - Questionnaire Products** to incorporate the modal interaction and direct "add to cart" flow. This will modify and replace parts of the original Phase 7 tasks.
+
+We'll assume you have a basic modal component system available (or can create one, e.g., using Radix UI Primitives, Headless UI, or a custom solution).
+
+---
+
+## Revised Plan: Product Type (c) - Questionnaire in Modal & Direct Add to Cart
+
+**Affected Original Phase:** Primarily Phase 7. Some tasks will be removed, others modified, and new ones added.
+
+---
+
+### Phase 7-MOD: Questionnaire Modal & Direct Cart Addition
+
+*   **Task ID: P7-MOD-001** (Replaces P7-001 - no change)
+    *   **Description:** Manually insert 1 sample 'questionnaire_prescription' product into `products` table (or ensure one exists).
+    *   **File(s) to Create/Modify:** N/A (Supabase Table Editor).
+    *   **Test Criteria:** Sample product exists with `category = 'questionnaire_prescription'`.
+    *   **Depends On:** P3-001.
+
+*   **Task ID: P7-MOD-002** (Replaces P7-002 - no change in button text, only in action)
+    *   **Description:** Ensure single product page (`products/[slug]/page.tsx`) displays an "Answer Questions" button if `product.category` is 'questionnaire_prescription'. This button will now open a modal instead of navigating.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** When viewing a 'questionnaire_prescription' product, the "Answer Questions" button appears. Clicking it does nothing yet, or logs to console.
+    *   **Depends On:** P3-008, P7-MOD-001.
+
+*   **Task ID: P7-MOD-003** (Replaces P7-003 - no change)
+    *   **Description:** Create/ensure `questionnaire_approvals` table in Supabase. MVP fields: `id` (UUID, PK), `user_id` (UUID, FK to `profiles.id`), `product_id` (UUID, FK to `products.id`), `questionnaire_answers` (JSONB), `status` (ENUM: 'pending_approval', 'approved', 'rejected'), `created_at` (TIMESTAMPTZ).
+    *   **File(s) to Create/Modify:** Supabase SQL Editor.
+    *   **Test Criteria:** `questionnaire_approvals` table exists.
+    *   **Depends On:** P1-007, P3-001.
+
+*   **Task ID: P7-MOD-004** (Replaces P7-004 - no change)
+    *   **Description:** Add/ensure RLS for `questionnaire_approvals`: Users can see their own approvals and create new ones.
+    *   **File(s) to Create/Modify:** Supabase SQL Editor.
+    *   **Test Criteria:** Policies created/exist.
+    *   **Depends On:** P7-MOD-003.
+
+*   **Task ID: P7-MOD-005** (New Task - Basic Modal Component)
+    *   **Description:** Create or integrate a basic, reusable Modal component. It should accept `isOpen`, `onClose` props, and `children`. For now, it can just appear centered without animation.
+    *   **File(s) to Create/Modify:** `components/ui/Modal.tsx` (or similar).
+    *   **Test Criteria:** A simple modal can be opened and closed on a test page by controlling its `isOpen` state.
+    *   **Depends On:** P1-001.
+
+*   **Task ID: P7-MOD-006** (New Task - Modal State on Product Page)
+    *   **Description:** On the product detail page (`products/[slug]/page.tsx`), add state to control the questionnaire modal's visibility (e.g., `isQuestionnaireModalOpen`, `setIsQuestionnaireModalOpen`).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (will likely need to convert part of it or the button to a Client Component).
+    *   **Test Criteria:** Internal state for modal visibility can be toggled.
+    *   **Depends On:** P3-008.
+
+*   **Task ID: P7-MOD-007** (Modifies P7-008's intent)
+    *   **Description:** Wire the "Answer Questions" button on the product detail page to open the (currently empty) Modal component by setting `isQuestionnaireModalOpen` to true.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** Clicking the "Answer Questions" button shows the basic modal. The modal should have a close button that sets `isQuestionnaireModalOpen` to false.
+    *   **Depends On:** P7-MOD-002, P7-MOD-005, P7-MOD-006.
+
+*   **Task ID: P7-MOD-008** (Replaces P7-006 - Form remains, but context changes)
+    *   **Description:** Create/Update `QuestionnaireForm.tsx` component with 2-3 sample static questions. It should accept an `onSubmit` prop and a `productId` prop.
+    *   **File(s) to Create/Modify:** `components/forms/QuestionnaireForm.tsx`.
+    *   **Test Criteria:** Form component renders with sample questions. `onSubmit` prop can be called.
+    *   **Depends On:** P1-001.
+
+*   **Task ID: P7-MOD-009** (Replaces P7-007 - Form now in Modal)
+    *   **Description:** Place the `QuestionnaireForm.tsx` component inside the Modal on the product detail page. Pass the current `productId` to it.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (specifically, the content rendered inside the `<Modal>`).
+    *   **Test Criteria:** When the "Answer Questions" button is clicked, the modal opens and displays the questionnaire form.
+    *   **Depends On:** P7-MOD-007, P7-MOD-008.
+
+*   **Task ID: P7-MOD-010** (Replaces P7-009 - API Route unchanged)
+    *   **Description:** Create/ensure API Route Handler `/api/submit-questionnaire/route.ts` exists.
+    *   **File(s) to Create/Modify:** `app/api/submit-questionnaire/route.ts`.
+    *   **Test Criteria:** Route handler file exists.
+    *   **Depends On:** P1-001.
+
+*   **Task ID: P7-MOD-011** (Replaces P7-010 - API Logic mostly same, but returns approval ID)
+    *   **Description:** Implement `/api/submit-questionnaire` logic:
+        1.  Receive form data (`questionnaire_answers`, `productId`) from request body.
+        2.  Get current user ID.
+        3.  Save data to `questionnaire_approvals` table (status `pending_approval`).
+        4.  (MVP Stub: Log "Would send to SmartScripts.ie" to console).
+        5.  (MVP Stub: For testing, immediately update status to `approved` and get the `id` of the newly created `questionnaire_approvals` record).
+        6.  Return success, the `approvalStatus: 'approved'`, and the `approvalId` to the frontend.
+    *   **File(s) to Create/Modify:** `app/api/submit-questionnaire/route.ts`.
+    *   **Test Criteria:** Submitting form data to this API creates a record in `questionnaire_approvals` with status 'approved'. The API response includes `{ success: true, approvalStatus: 'approved', approvalId: '...' }`.
+    *   **Depends On:** P1-006, P2-007, P7-MOD-003, P7-MOD-010.
+
+*   **Task ID: P7-MOD-012** (Replaces P7-011 - Form submission handles API call)
+    *   **Description:** Implement form submission logic in `QuestionnaireForm.tsx`. When submitted, it should call the `/api/submit-questionnaire` API route. The `onSubmit` prop passed to the form should be called with the API response (e.g., `{ success, approvalStatus, approvalId }`).
+    *   **File(s) to Create/Modify:** `components/forms/QuestionnaireForm.tsx`.
+    *   **Test Criteria:** Submitting the questionnaire form within the modal triggers the API call. The callback passed via `onSubmit` prop receives the API response.
+    *   **Depends On:** P7-MOD-009, P7-MOD-011.
+
+*   **Task ID: P7-MOD-013** (New Task - Handle API Response on Product Page)
+    *   **Description:** On the product detail page (`products/[slug]/page.tsx`), define the handler function that will be passed as the `onSubmit` prop to `QuestionnaireForm.tsx`. This handler will:
+        1.  Receive the response from `/api/submit-questionnaire`.
+        2.  If successful and `approvalStatus` is 'approved':
+            *   Close the questionnaire modal.
+            *   Proceed to add the product to the cart (next task).
+        3.  If not approved or an error occurs, display an error message (e.g., using a toast/notification).
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`.
+    *   **Test Criteria:** After submitting the questionnaire and receiving a (stubbed) successful 'approved' response, the modal closes. Error messages are shown for failures.
+    *   **Depends On:** P7-MOD-012, P4-002 (Zustand cart store for `addItem` action).
+
+*   **Task ID: P7-MOD-014** (Replaces P7-012 - Direct Add to Cart)
+    *   **Description:** In the `onSubmit` handler on the product detail page, if the questionnaire is approved, directly add the product to the cart using the Zustand store's `addItem` action. The item added to the cart should include the `product` details and the `approvalId`.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx`, `stores/cartStore.ts` (ensure `addItem` can store `approvalId` with item).
+    *   **Test Criteria:** After successful questionnaire submission & approval, the product (with its `approvalId`) is added to the Zustand cart. Cart count in Navbar updates.
+    *   **Depends On:** P7-MOD-013, P4-002 (Zustand cart store).
+
+*   **Task ID: P7-MOD-015** (New Task - Success Message)
+    *   **Description:** Implement a success message/toast notification that appears at the bottom of the screen when the item is successfully added to the cart after questionnaire completion.
+    *   **File(s) to Create/Modify:** `app/(main)/products/[slug]/page.tsx` (and a generic Toast/Notification component if not already present).
+    *   **Test Criteria:** A success message (e.g., "Product added to cart!") is displayed after the item is added to the cart.
+    *   **Depends On:** P7-MOD-014.
+
+*   **Task ID: P7-MOD-016** (Replaces P7-013 - No change, just re-verify)
+    *   **Description:** Ensure `/api/create-payment-intent` correctly includes `questionnaire_approval_id` in `order_items` if present for an item in the cart.
+    *   **File(s) to Create/Modify:** `app/api/create-payment-intent/route.ts`.
+    *   **Test Criteria:** When checking out with an approved questionnaire product, the `order_items` record for that product in Supabase has the correct `questionnaire_approval_id` (sourced from the cart item).
+    *   **Depends On:** P5-010, P7-MOD-014.
+
+*   **Task ID: P7-MOD-017** (New Task - Modal Animation)
+    *   **Description:** Enhance the Modal component (`components/ui/Modal.tsx`) to animate in from the right side of the screen and animate out. Use CSS transitions/animations or a library like Framer Motion.
+    *   **File(s) to Create/Modify:** `components/ui/Modal.tsx`.
+    *   **Test Criteria:** The questionnaire modal now slides in from the right when opened and slides out when closed.
+    *   **Depends On:** P7-MOD-005.
+
+*   **Task ID: P7-MOD-018** (New Task - Modal Styling)
+    *   **Description:** Style the modal content area (specifically for the questionnaire) to be user-friendly. Ensure it's appropriately sized, scrollable if the questionnaire is long, and has clear submit/cancel actions.
+    *   **File(s) to Create/Modify:** `components/ui/Modal.tsx`, `components/forms/QuestionnaireForm.tsx`.
+    *   **Test Criteria:** The questionnaire modal is visually appealing and easy to use. Long forms are scrollable within the modal.
+    *   **Depends On:** P7-MOD-009, P7-MOD-017.
+
+**Removed Original Tasks (due to new flow):**
+*   `P7-005`: Create Questionnaire page `app/(main)/questionnaire/[productId]/page.tsx` (no longer a separate page).
+*   The intent of `P7-008` (linking to a separate page) is replaced by modal opening.
+*   The intent of `P7-012` (showing "Add to Cart" button *after* approval on a separate page) is replaced by direct add-to-cart.
+
+This revised plan streamlines the user experience for questionnaire products by keeping the interaction on the product page and providing immediate feedback and action (add to cart).
+```
 

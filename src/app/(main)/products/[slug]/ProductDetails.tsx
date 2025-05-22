@@ -229,71 +229,71 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </p>
           </div>
           <div className="mt-6">
-            <div className="mt-6">
-              {/* Dosage Option */}
-              <div>
-                <div className="text-sm md:text-base font-light mb-2 text-gray-600">Dosage (mg)</div>
-                <div className="flex gap-3">
-                  {dosageOptions.map((dose) => (
-                    <button
-                      key={dose}
-                      type="button"
-                      onClick={() => setSelectedDosage(dose)}
-                      className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
-                        ${selectedDosage === dose
-                          ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
-                      `}
-                    >
-                      {dose}mg
-                    </button>
-                  ))}
+              <div className="mt-6">
+                {/* Dosage Option */}
+                <div>
+                  <div className="text-sm md:text-base font-light mb-2 text-gray-600">Dosage (mg)</div>
+                  <div className="flex gap-3">
+                    {dosageOptions.map((dose) => (
+                      <button
+                        key={dose}
+                        type="button"
+                        onClick={() => setSelectedDosage(dose)}
+                        className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
+                          ${selectedDosage === dose
+                            ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
+                        `}
+                      >
+                        {dose}mg
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Tablet Count Option */}
+                <div className="mt-4">
+                  <div className="text-sm md:text-base font-light mb-2 text-gray-600">Number of Tablets</div>
+                  <div className="flex gap-3">
+                    {tabletOptions.map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        onClick={() => setSelectedTablets(count)}
+                        className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
+                          ${selectedTablets === count
+                            ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
+                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
+                        `}
+                      >
+                        {count}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-              {/* Tablet Count Option */}
-              <div className="mt-4">
-                <div className="text-sm md:text-base font-light mb-2 text-gray-600">Number of Tablets</div>
-                <div className="flex gap-3">
-                  {tabletOptions.map((count) => (
-                    <button
-                      key={count}
-                      type="button"
-                      onClick={() => setSelectedTablets(count)}
-                      className={`px-4 py-2 rounded-full border transition-all duration-150 shadow-sm text-sm md:text-base font-medium
-                        ${selectedTablets === count
-                          ? 'bg-yellow-400 text-black border-yellow-500 shadow-md'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}
-                      `}
-                    >
-                      {count}
-                    </button>
-                  ))}
-                </div>
+          </div>
+            <div className="mt-8 flex items-center gap-4">
+              <span className="text-sm text-gray-600">Quantity</span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                  aria-label="Decrease quantity"
+                >
+                  <MinusIcon className="h-4 w-4" />
+                </button>
+                <span className="px-3 text-gray-900 font-medium">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(q => q + 1)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
+                  aria-label="Increase quantity"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </button>
               </div>
             </div>
-          </div>
-          <div className="mt-8 flex items-center gap-4">
-            <span className="text-sm text-gray-600">Quantity</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
-                aria-label="Decrease quantity"
-              >
-                <MinusIcon className="h-4 w-4" />
-              </button>
-              <span className="px-3 text-gray-900 font-medium">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity(q => q + 1)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:text-black hover:bg-gray-100 active:bg-gray-200 transition-all duration-150 shadow-sm focus:outline-none"
-                aria-label="Increase quantity"
-              >
-                <PlusIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
           <div className="mt-8">
             {error && (
               <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-md">
