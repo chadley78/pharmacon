@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import CartIcon from '@/components/cart/CartIcon'
 import { useRouter } from 'next/navigation'
 import { UserIcon } from '@heroicons/react/24/outline'
+import { SearchBar } from '@/components/ui/SearchBar'
 
 export default function Navbar() {
   const [session, setSession] = useState<unknown>(null)
@@ -58,10 +59,17 @@ export default function Navbar() {
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
             <Link href="/" className="text-gray-900 font-bold text-2xl tracking-tight">
               Pharmacon
             </Link>
+            <div className="hidden sm:block w-64">
+              <SearchBar 
+                placeholder="Search products..."
+                className="w-full"
+                debounceMs={500}
+              />
+            </div>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
             <Link
