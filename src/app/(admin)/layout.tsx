@@ -1,4 +1,5 @@
 import Navbar from '@/components/layout/Navbar'
+import { Suspense } from 'react'
 
 export default function AdminLayout({
   children,
@@ -7,7 +8,11 @@ export default function AdminLayout({
 }) {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Suspense fallback={
+        <div className="h-16 bg-white shadow-sm animate-pulse" />
+      }>
+        <Navbar />
+      </Suspense>
       <main>{children}</main>
     </div>
   )
