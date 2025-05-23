@@ -67,7 +67,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
 
       // For questionnaire products, require an approval ID
-      if (product.category === 'questionnaire_prescription' && !questionnaireApprovalId) {
+      if (product.category === 'restricted' && !questionnaireApprovalId) {
         throw new Error('Questionnaire approval is required for this product')
       }
 

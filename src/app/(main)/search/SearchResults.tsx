@@ -41,8 +41,8 @@ export function SearchResults() {
 
   const categoryTitles: Record<ProductCategory, string> = {
     direct_purchase: 'Over-the-Counter Products',
-    questionnaire_prescription: 'Prescription Products',
-    doctor_consultation: 'Doctor Consultations'
+    prescription: 'Prescription Products',
+    restricted: 'Restricted Products'
   }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import { useState, useEffect, ChangeEvent, FormEvent, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from './input'
 import { Search } from 'lucide-react'
@@ -28,18 +28,25 @@ export function SearchBar({
   useEffect(() => {
     const urlQuery = searchParams.get('q') || ''
     console.log('🔍 SearchBar - URL sync effect:', { urlQuery, currentInput: inputValue })
+    
     // Only update if the URL query is different from current input AND we're not in the middle of typing
     if (urlQuery !== inputValue && !isLoading) {
       console.log('🔍 SearchBar - Updating input from URL:', urlQuery)
       setInputValue(urlQuery)
     }
-  }, [searchParams]) // Remove inputValue from dependencies to prevent the sync loop
+  }, [searchParams, inputValue, isLoading]) // Include all dependencies
 
-  // Update URL with debounced search
+  // Prevent sync loops by using a ref to track if the update came from URL
+  const isUrlUpdate = useRef(false)
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (inputValue) {
-        console.log('🔍 SearchBar - Updating URL with value:', inputValue)
+      if (isUrlUpdate.current) {
+        isUrlUpdate.current = false
+        return
+      }
+      // Only update URL if the change came from user input
+      if (inputValue && !isLoading) {
+        isUrlUpdate.current = true
         const params = new URLSearchParams(searchParams.toString())
         params.set('q', inputValue)
         if (onSubmit) {
@@ -51,7 +58,7 @@ export function SearchBar({
     }, debounceMs)
 
     return () => clearTimeout(timer)
-  }, [inputValue, debounceMs, router, searchParams, onSubmit])
+  }, [inputValue, isLoading, searchParams, router, onSubmit, debounceMs])
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     console.log('🔍 SearchBar - handleChange called with value:', e.target.value)
