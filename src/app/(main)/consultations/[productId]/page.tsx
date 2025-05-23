@@ -23,7 +23,7 @@ export default async function ConsultationPage({ params }: ConsultationPageProps
     .from('products')
     .select('*')
     .eq('id', productId)
-    .eq('category', 'doctor_consultation')
+    .eq('category', 'prescription')
     .eq('is_active', true)
     .single()
 

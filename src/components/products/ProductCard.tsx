@@ -13,9 +13,9 @@ export default function ProductCard({ product, searchQuery = '' }: ProductCardPr
     switch (category) {
       case 'direct_purchase':
         return 'from-yellow-400 to-yellow-100'
-      case 'questionnaire_prescription':
+      case 'prescription':
         return 'from-fuchsia-700 to-pink-400'
-      case 'doctor_consultation':
+      case 'restricted':
         return 'from-fuchsia-700 to-pink-400'
       default:
         return 'from-gray-100 to-gray-200'
@@ -26,8 +26,8 @@ export default function ProductCard({ product, searchQuery = '' }: ProductCardPr
     switch (category) {
       case 'direct_purchase':
         return 'hover:border-yellow-400'
-      case 'questionnaire_prescription':
-      case 'doctor_consultation':
+      case 'prescription':
+      case 'restricted':
         return 'hover:border-fuchsia-700'
       default:
         return 'hover:border-gray-400'

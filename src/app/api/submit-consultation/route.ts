@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       .from('products')
       .select('id, category')
       .eq('id', productId)
-      .eq('category', 'doctor_consultation')
+      .eq('category', 'prescription')
       .eq('is_active', true)
       .single()
 

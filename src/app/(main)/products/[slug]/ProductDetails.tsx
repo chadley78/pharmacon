@@ -53,9 +53,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     switch (category) {
       case 'direct_purchase':
         return 'from-yellow-400 to-yellow-100'
-      case 'questionnaire_prescription':
-        return 'from-fuchsia-700 to-pink-400'
-      case 'doctor_consultation':
+      case 'prescription':
+        return 'from-blue-600 to-blue-300'
+      case 'restricted':
         return 'from-fuchsia-700 to-pink-400'
       default:
         return 'from-gray-100 to-gray-200'
@@ -63,7 +63,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   useEffect(() => {
-    if (product.category === 'questionnaire_prescription') {
+    if (product.category === 'restricted') {
       const checkApproval = async () => {
         try {
           const { data: { session } } = await supabase.auth.getSession()
@@ -93,7 +93,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     setLoading(true)
     setError(null)
     try {
-      if (product.category === 'questionnaire_prescription') {
+      if (product.category === 'restricted') {
         if (!questionnaireApproval || questionnaireApproval.status !== 'approved') {
           setIsQuestionnaireModalOpen(true)
           setLoading(false)
@@ -184,8 +184,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   const getButtonText = () => {
-    if (product.category === 'doctor_consultation') {
-      return 'Request Consultation'
+    if (product.category === 'prescription') {
+      return 'Get Instant Prescription'
     }
     return 'Add to Cart'
   }
@@ -196,7 +196,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   const handleButtonClick = () => {
-    if (product.category === 'doctor_consultation') {
+    if (product.category === 'prescription') {
       handleRequestConsultation()
     } else {
       handleAddToCart()

@@ -1,4 +1,4 @@
-export type ProductCategory = 'direct_purchase' | 'doctor_consultation' | 'questionnaire_prescription'
+export type ProductCategory = 'direct_purchase' | 'prescription' | 'restricted'
 
 export interface Product {
   id: string
