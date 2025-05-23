@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { ProductCategory } from '@/lib/types'
 
 // Define the type for a product with rank
 type ProductWithRank = {
@@ -16,16 +17,18 @@ export async function GET(request: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies })
   const searchParams = request.nextUrl.searchParams
   const query = searchParams.get('query')
+  const categories = searchParams.getAll('category') as ProductCategory[]
 
-  // If no query or empty query, return empty results
-  if (!query || query.trim() === '') {
+  // If no query and no categories, return empty results
+  if ((!query || query.trim() === '') && categories.length === 0) {
     return NextResponse.json({ products: [] })
   }
 
   try {
     const { data: products, error } = await supabase
       .rpc('search_products_with_rank', {
-        search_term: query
+        search_term: query || null,
+        categories: categories.length > 0 ? categories : null
       })
 
     if (error) {

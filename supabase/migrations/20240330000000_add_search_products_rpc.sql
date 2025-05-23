@@ -1,5 +1,8 @@
 -- Create the search_products_with_rank RPC function
-CREATE OR REPLACE FUNCTION search_products_with_rank(search_term TEXT)
+CREATE OR REPLACE FUNCTION search_products_with_rank(
+  search_term TEXT,
+  categories TEXT[] DEFAULT NULL
+)
 RETURNS TABLE (
   id UUID,
   name TEXT,
@@ -20,7 +23,8 @@ BEGIN
   FROM products p
   WHERE 
     p.is_active = true
-    AND p.fts_document_vector @@ plainto_tsquery('english', search_term)
-  ORDER BY rank DESC;
+    AND (search_term IS NULL OR p.fts_document_vector @@ plainto_tsquery('english', search_term))
+    AND (categories IS NULL OR p.category = ANY(categories))
+  ORDER BY rank DESC NULLS LAST, p.name;
 END;
 $$; 

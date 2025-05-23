@@ -121,7 +121,7 @@ export default async function AdminQuestionnairesPage() {
                         </button>
                       </div>
                     }>
-                      <QuestionnaireApprovalActions approvalId={approval.id} />
+                    <QuestionnaireApprovalActions approvalId={approval.id} />
                     </Suspense>
                   )}
                 </div>
