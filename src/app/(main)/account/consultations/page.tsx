@@ -28,8 +28,8 @@ export default async function ConsultationsPage() {
   if (fetchError) {
     console.error('Error fetching consultation requests:', fetchError)
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">My Consultations</h1>
+      <div>
+        <h1 className="text-2xl font-bold mb-6">My Consultations</h1>
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           There was an error loading your consultation requests. Please try again later.
         </div>
@@ -38,8 +38,8 @@ export default async function ConsultationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">My Consultations</h1>
+    <div>
+      <h1 className="text-2xl font-bold mb-6">My Consultations</h1>
       <Suspense fallback={
         <div className="space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -67,7 +67,7 @@ export default async function ConsultationsPage() {
           ))}
         </div>
       }>
-        <ConsultationRequestsList requests={consultationRequests || []} />
+      <ConsultationRequestsList requests={consultationRequests || []} />
       </Suspense>
     </div>
   )

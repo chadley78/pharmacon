@@ -18,8 +18,8 @@ export default async function AccountLayout({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar Navigation */}
-        <nav className="w-full md:w-64 flex-shrink-0">
+        {/* Sidebar Navigation - hidden on mobile */}
+        <nav className="hidden md:block w-full md:w-64 flex-shrink-0">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <h2 className="font-semibold text-lg mb-4">Account</h2>
             <ul className="space-y-2">
