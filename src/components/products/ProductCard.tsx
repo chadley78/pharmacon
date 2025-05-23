@@ -1,12 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/lib/types'
+import { highlightText } from '@/lib/utils/highlight'
 
 interface ProductCardProps {
   product: Product
+  searchQuery?: string
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, searchQuery = '' }: ProductCardProps) {
   const getGradientClass = (category: string) => {
     switch (category) {
       case 'direct_purchase':
@@ -55,12 +57,18 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <div className="p-3 sm:p-6 bg-white/80 backdrop-blur-sm rounded-b-[16px] sm:rounded-b-[24px]">
-        <h3 className="text-base sm:text-lg font-medium text-gray-900 group-hover:text-gray-900 group-active:text-black transition-colors duration-300 ease-in-out">
-          {product.name}
-        </h3>
-        <p className="mt-1 text-xs sm:text-sm text-gray-500 line-clamp-2">
-          {product.description}
-        </p>
+        <h3 
+          className="text-base sm:text-lg font-medium text-gray-900 group-hover:text-gray-900 group-active:text-black transition-colors duration-300 ease-in-out"
+          dangerouslySetInnerHTML={{ 
+            __html: highlightText(product.name, searchQuery)
+          }}
+        />
+        <p 
+          className="mt-1 text-xs sm:text-sm text-gray-500 line-clamp-2"
+          dangerouslySetInnerHTML={{ 
+            __html: highlightText(product.description || '', searchQuery)
+          }}
+        />
         <p className="mt-2 text-base sm:text-lg font-medium text-gray-900 group-hover:text-gray-900 group-active:text-black transition-colors duration-300 ease-in-out">
           €{product.price.toFixed(2)}
         </p>
