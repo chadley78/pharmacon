@@ -38,38 +38,37 @@ export default function ProductCard({ product, searchQuery = '' }: ProductCardPr
     <Link 
       href={`/products/${product.slug}`}
       aria-label={`View details for ${product.name}`}
-      className={`group block rounded-[16px] sm:rounded-[24px] border border-gray-200 shadow-md hover:shadow-xl active:shadow-lg hover:scale-[1.02] active:scale-[0.98] transform transition-all duration-300 ease-in-out ${getBorderHoverClass(product.category)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-700 focus-visible:ring-offset-2`}
+      className={`group card-base ${getBorderHoverClass(product.category)}`}
     >
-      <div className={`relative aspect-[4/3] w-full min-h-[150px] sm:min-h-[200px] overflow-hidden rounded-t-[16px] sm:rounded-t-[24px] bg-gradient-to-br ${getGradientClass(product.category)}`}>
+      <div className={`relative aspect-[4/3] w-full min-h-card sm:min-h-card-lg overflow-hidden rounded-t-card sm:rounded-t-card-lg bg-gradient-prescription ${getGradientClass(product.category)}`}>
         {product.image_url ? (
           <Image
             src={product.image_url}
             alt={product.name}
             width={500}
             height={500}
-            className="absolute inset-0 h-full w-full object-cover object-center rounded-t-[16px] sm:rounded-t-[24px] group-hover:scale-102 group-hover:opacity-90 group-active:scale-100 group-active:opacity-95 transition-all duration-300 ease-in-out"
-            style={{ background: 'transparent' }}
+            className="absolute inset-0 h-full w-full object-cover object-center rounded-t-card sm:rounded-t-card-lg group-hover:scale-102 group-hover:opacity-90 group-active:scale-100 group-active:opacity-95 transition-all duration-300 ease-in-out bg-transparent"
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
-            <span className="text-white/80">No image available</span>
+            <span className="text-text-light/80">No image available</span>
           </div>
         )}
       </div>
-      <div className="p-3 sm:p-6 bg-white/80 backdrop-blur-sm rounded-b-[16px] sm:rounded-b-[24px]">
+      <div className="p-3 sm:p-6 bg-text-light/80 backdrop-blur-sm rounded-b-card sm:rounded-b-card-lg">
         <h3 
-          className="text-base sm:text-lg font-medium text-gray-900 group-hover:text-gray-900 group-active:text-black transition-colors duration-300 ease-in-out"
+          className="text-base sm:text-lg font-medium text-text-dark group-hover:text-text-dark group-active:text-text-dark transition-colors duration-300 ease-in-out"
           dangerouslySetInnerHTML={{ 
             __html: highlightText(product.name, searchQuery)
           }}
         />
         <p 
-          className="mt-1 text-xs sm:text-sm text-gray-500 line-clamp-2"
+          className="mt-1 text-xs sm:text-sm text-text-dark/60 line-clamp-2"
           dangerouslySetInnerHTML={{ 
             __html: highlightText(product.description || '', searchQuery)
           }}
         />
-        <p className="mt-2 text-base sm:text-lg font-medium text-gray-900 group-hover:text-gray-900 group-active:text-black transition-colors duration-300 ease-in-out">
+        <p className="mt-2 text-base sm:text-lg font-medium text-text-dark group-hover:text-text-dark group-active:text-text-dark transition-colors duration-300 ease-in-out">
           €{product.price.toFixed(2)}
         </p>
       </div>
@@ -80,6 +79,6 @@ export default function ProductCard({ product, searchQuery = '' }: ProductCardPr
 // JIT seed for Tailwind gradients
 export const _JIT_SEED = (
   <div className="hidden">
-    from-xefagSleepBase to-xefagSleepTint from-xefagRelaxBase to-xefagRelaxTint
+    from-primary-base to-primary-light from-secondary-base to-secondary-light
   </div>
 ) 

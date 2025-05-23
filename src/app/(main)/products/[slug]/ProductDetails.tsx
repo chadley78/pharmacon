@@ -26,6 +26,14 @@ interface ToastState {
   show: boolean
 }
 
+export interface QuestionnaireAnswers {
+  over18: boolean;
+  noHeartProblems: boolean;
+  noNitrates: boolean;
+  noLiverProblems: boolean;
+  noRecentStroke: boolean;
+}
+
 export default function ProductDetails({ product }: ProductDetailsProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -124,7 +132,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     setIsQuestionnaireModalOpen(false)
   }
 
-  const handleQuestionnaireSubmit = async (data: { answers: any; productId: string }) => {
+  const handleQuestionnaireSubmit = async (data: { answers: QuestionnaireAnswers; productId: string }) => {
     setLoading(true)
     setError(null)
     try {

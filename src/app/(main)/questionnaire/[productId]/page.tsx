@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import QuestionnaireForm from '@/components/forms/QuestionnaireForm'
+import { QuestionnaireAnswers } from '@/app/(main)/products/[slug]/ProductDetails'
 
 interface QuestionnairePageProps {
   params: {
@@ -33,7 +34,7 @@ export default async function QuestionnairePage({ params }: QuestionnairePagePro
     redirect(`/products/${product.slug}`)
   }
 
-  async function handleSubmit(data: { answers: any; productId: string }) {
+  async function handleSubmit(data: { answers: QuestionnaireAnswers; productId: string }) {
     'use server'
     
     const response = await fetch('/api/submit-questionnaire', {

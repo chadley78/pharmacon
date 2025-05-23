@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react'
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Input } from './input'
 import { Search } from 'lucide-react'
@@ -30,12 +30,16 @@ export function SearchBar({
       if (inputValue) {
         const params = new URLSearchParams(searchParams.toString())
         params.set('q', inputValue)
-        router.push(`/search?${params.toString()}`)
+        if (onSubmit) {
+          onSubmit(inputValue)
+        } else {
+          router.push(`/search?${params.toString()}`)
+        }
       }
     }, debounceMs)
 
     return () => clearTimeout(timer)
-  }, [inputValue, debounceMs, router, searchParams])
+  }, [inputValue, debounceMs, router, searchParams, onSubmit])
 
   // Sync with URL changes
   useEffect(() => {
@@ -43,7 +47,7 @@ export function SearchBar({
     if (urlQuery !== inputValue) {
       setInputValue(urlQuery)
     }
-  }, [searchParams])
+  }, [searchParams, inputValue])
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value

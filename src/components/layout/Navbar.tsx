@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CartIcon from '@/components/cart/CartIcon'
 import { useRouter } from 'next/navigation'
@@ -176,6 +176,18 @@ export default function Navbar() {
   const router = useRouter()
   const supabase = createClient()
 
+  const checkAdminStatus = useCallback(async (userId: string) => {
+    console.log('Checking admin status for user:', userId)
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+    
+    console.log('Admin check result:', { data, error })
+    setIsAdmin(!!data && !error)
+  }, [supabase])
+
   useEffect(() => {
     // Check initial auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -198,19 +210,7 @@ export default function Navbar() {
     })
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
-
-  const checkAdminStatus = async (userId: string) => {
-    console.log('Checking admin status for user:', userId)
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-    
-    console.log('Admin check result:', { data, error })
-    setIsAdmin(!!data && !error)
-  }
+  }, [supabase.auth, checkAdminStatus])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()

@@ -40,7 +40,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove the rank field from the response since it's only used for sorting
-    const productsWithoutRank = (products as ProductWithRank[] | null)?.map(({ rank, ...product }) => product) || []
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const productsWithoutRank = (products as ProductWithRank[] | null)?.map(({ rank: _, ...product }) => product) || []
 
     return NextResponse.json({ products: productsWithoutRank })
   } catch (error) {

@@ -77,12 +77,6 @@ export function SearchResults() {
     router.push(`/search?${params.toString()}`)
   }
 
-  const sortProducts = (products: Product[]): Product[] => {
-    // This function is now only used as a fallback
-    // Most sorting is handled by the database
-    return products
-  }
-
   useEffect(() => {
     let isMounted = true
 

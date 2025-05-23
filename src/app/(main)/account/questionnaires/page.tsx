@@ -3,23 +3,6 @@ import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { QuestionnairesList } from '@/components/QuestionnairesList'
 
-interface QuestionnaireApproval {
-  id: string
-  created_at: string
-  status: 'approved' | 'rejected'
-  questionnaire_answers: {
-    over18: boolean
-    noHeartProblems: boolean
-    noNitrates: boolean
-    noLiverProblems: boolean
-    noRecentStroke: boolean
-  }
-  product: {
-    name: string
-    slug: string
-  }
-}
-
 export default async function QuestionnairesPage() {
   const supabase = await createClient()
 
