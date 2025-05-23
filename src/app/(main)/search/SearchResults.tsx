@@ -83,6 +83,14 @@ export function SearchResults() {
     const fetchProducts = async () => {
       if (!isMounted) return
       
+      console.log('🔍 Search component - Starting search with params:', {
+        searchQuery,
+        selectedCategories: Array.from(selectedCategories),
+        sortBy,
+        currentPage,
+        itemsPerPage: ITEMS_PER_PAGE
+      })
+      
       setLoading(true)
       setError(null)
       
@@ -95,19 +103,33 @@ export function SearchResults() {
 
         if (selectedCategories.size > 0) {
           const categories = Array.from(selectedCategories)
+          console.log('🔍 Search component - Filtering by categories:', categories)
           countQuery = countQuery.in('category', categories)
         }
 
         if (searchQuery) {
+          console.log('🔍 Search component - Adding text search for query:', searchQuery)
           countQuery = countQuery.textSearch('fts_document_vector', searchQuery, {
             type: 'plain',
             config: 'english'
           })
         }
 
+        console.log('🔍 Search component - Executing count query')
         const { count, error: countError } = await countQuery
 
-        if (countError) throw countError
+        if (countError) {
+          console.error('🔍 Search component - Count query error:', {
+            error: countError,
+            errorMessage: countError.message,
+            errorDetails: countError.details,
+            errorHint: countError.hint,
+            errorCode: countError.code
+          })
+          throw countError
+        }
+        
+        console.log('🔍 Search component - Count query successful:', { count })
         if (isMounted) {
           setTotalCount(count || 0)
         }
@@ -131,6 +153,7 @@ export function SearchResults() {
         }
 
         // Apply sorting at the database level
+        console.log('🔍 Search component - Applying sort:', sortBy)
         switch (sortBy) {
           case 'price_asc':
             query = query.order('price', { ascending: true })
@@ -151,20 +174,44 @@ export function SearchResults() {
             break
         }
 
+        const rangeStart = (currentPage - 1) * ITEMS_PER_PAGE
+        const rangeEnd = currentPage * ITEMS_PER_PAGE - 1
+        console.log('🔍 Search component - Fetching products with range:', { rangeStart, rangeEnd })
+        
         const { data, error } = await query
-          .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1)
+          .range(rangeStart, rangeEnd)
 
-        if (error) throw error
+        if (error) {
+          console.error('🔍 Search component - Products query error:', {
+            error,
+            errorMessage: error.message,
+            errorDetails: error.details,
+            errorHint: error.hint,
+            errorCode: error.code
+          })
+          throw error
+        }
+        
+        console.log('🔍 Search component - Products query successful:', {
+          count: data?.length || 0,
+          firstFewProducts: data?.slice(0, 3).map(p => ({ id: p.id, name: p.name }))
+        })
+        
         if (isMounted) {
-          setProducts(data) // No need to sort here anymore
+          setProducts(data)
         }
       } catch (err) {
-        console.error('Error fetching products:', err)
+        console.error('🔍 Search component - Unexpected error:', {
+          error: err,
+          errorMessage: err instanceof Error ? err.message : 'Unknown error',
+          stack: err instanceof Error ? err.stack : undefined
+        })
         if (isMounted) {
           setError('Failed to load products. Please try again later.')
         }
       } finally {
         if (isMounted) {
+          console.log('🔍 Search component - Search complete, setting loading to false')
           setLoading(false)
         }
       }
@@ -173,6 +220,7 @@ export function SearchResults() {
     fetchProducts()
 
     return () => {
+      console.log('🔍 Search component - Cleanup: unmounting')
       isMounted = false
     }
   }, [searchQuery, selectedCategories, supabase, sortBy, currentPage])

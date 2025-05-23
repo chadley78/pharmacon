@@ -24,10 +24,22 @@ export function SearchBar({
   const [inputValue, setInputValue] = useState(searchParams.get('q') || '')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Sync with URL changes
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') || ''
+    console.log('🔍 SearchBar - URL sync effect:', { urlQuery, currentInput: inputValue })
+    // Only update if the URL query is different from current input AND we're not in the middle of typing
+    if (urlQuery !== inputValue && !isLoading) {
+      console.log('🔍 SearchBar - Updating input from URL:', urlQuery)
+      setInputValue(urlQuery)
+    }
+  }, [searchParams]) // Remove inputValue from dependencies to prevent the sync loop
+
   // Update URL with debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       if (inputValue) {
+        console.log('🔍 SearchBar - Updating URL with value:', inputValue)
         const params = new URLSearchParams(searchParams.toString())
         params.set('q', inputValue)
         if (onSubmit) {
@@ -41,15 +53,8 @@ export function SearchBar({
     return () => clearTimeout(timer)
   }, [inputValue, debounceMs, router, searchParams, onSubmit])
 
-  // Sync with URL changes
-  useEffect(() => {
-    const urlQuery = searchParams.get('q') || ''
-    if (urlQuery !== inputValue) {
-      setInputValue(urlQuery)
-    }
-  }, [searchParams, inputValue])
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log('🔍 SearchBar - handleChange called with value:', e.target.value)
     const value = e.target.value
     setInputValue(value)
     setIsLoading(true)
@@ -58,8 +63,10 @@ export function SearchBar({
   }
 
   const handleSubmit = (e: FormEvent) => {
+    console.log('🔍 SearchBar - handleSubmit called')
     e.preventDefault()
     if (inputValue.trim()) {
+      console.log('🔍 SearchBar - Submitting search:', inputValue.trim())
       if (onSubmit) {
         onSubmit(inputValue.trim())
       } else {
@@ -71,7 +78,11 @@ export function SearchBar({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={cn('relative w-full max-w-sm', className)}>
+    <form 
+      onSubmit={handleSubmit} 
+      className={cn('relative w-full max-w-sm', className)}
+      onClick={() => console.log('🔍 SearchBar - Form clicked')}
+    >
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -79,6 +90,8 @@ export function SearchBar({
           placeholder={placeholder}
           value={inputValue}
           onChange={handleChange}
+          onClick={() => console.log('🔍 SearchBar - Input clicked')}
+          onFocus={() => console.log('🔍 SearchBar - Input focused')}
           className="pl-9 pr-4"
           aria-label="Search products"
         />
