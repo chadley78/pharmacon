@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { SearchBar } from '../SearchBar'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -93,6 +94,34 @@ describe('SearchBar', () => {
     
     expect(onSubmit).toHaveBeenCalledWith('test search')
     expect(mockRouter.push).not.toHaveBeenCalled()
+    
+    jest.useRealTimers()
+  })
+
+  it('preserves keystrokes while typing', async () => {
+    jest.useFakeTimers()
+    render(<SearchBar debounceMs={300} />)
+    
+    const input = screen.getByRole('searchbox')
+    
+    // Type multiple characters
+    fireEvent.change(input, { target: { value: 't' } })
+    expect(input).toHaveValue('t')
+    
+    fireEvent.change(input, { target: { value: 'te' } })
+    expect(input).toHaveValue('te')
+    
+    fireEvent.change(input, { target: { value: 'tes' } })
+    expect(input).toHaveValue('tes')
+    
+    // Fast-forward past debounce time
+    await act(async () => {
+      jest.advanceTimersByTime(300)
+    })
+    
+    // URL should update after debounce, but input value should remain
+    expect(mockRouter.push).toHaveBeenCalledWith('/search?q=tes')
+    expect(input).toHaveValue('tes')
     
     jest.useRealTimers()
   })
