@@ -38,27 +38,27 @@ module.exports = {
       colors: {
         // Primary brand colors
         primary: {
-          base: '#8A0E4F',    // was xefagSleepBase
-          light: '#C71585',   // was xefagSleepTint
+          base: '#F6E6C9',    // Warm Sand
+          light: '#7A9C86',   // Sage Green
         },
         // Secondary/accent colors
         secondary: {
-          base: '#FFD700',    // was xefagRelaxBase
-          light: '#FFEEAA',   // was xefagRelaxTint
+          base: '#F0E6DA',    // Sky Beige
+          light: '#ADC4B4',   // Ocean Mist
         },
         // Call-to-action colors
         cta: {
-          primary: '#FFD700', // was xefagCtaYellow
-          dark: '#000000',    // was xefagCtaBlack
+          primary: '#FDBB57', // Sunset Gold
+          dark: '#F17C7D',    // Floral Coral
         },
         // Text colors
         text: {
-          dark: '#000000',    // was xefagTextBlack
-          light: '#FFFFFF',   // was xefagTextWhite
+          dark: '#3B2E2A',    // Midnight Brown
+          light: '#FFFFFF',   // White
         },
         // Accent highlight color
         accent: {
-          highlight: '#A7F142', // was hero-lime
+          highlight: '#ADC4B4', // Ocean Mist
         },
       },
       // Component-specific utilities

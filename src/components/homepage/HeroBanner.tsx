@@ -3,28 +3,27 @@ import Image from 'next/image';
 
 export default function HeroBanner() {
   return (
-    <section className="w-full bg-accent-highlight pb-0">
-      {/* Inner hero content with bottom rounded corners */}
-      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 rounded-b-[40px] pt-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8 h-full">
-          {/* Left Column */}
-          <div className="flex-1 flex flex-col items-start justify-center">
-            <div className="text-hero md:text-hero-lg font-extrabold text-primary-base leading-none mb-4">
-              Pharmacy Delivered, Fast & Easy
-            </div>
-            <div className="text-lg md:text-xl leading-relaxed max-w-md text-primary-base/90 mb-6">
-              Get your prescriptions and pharmacy essentials delivered right to your doorstep with Medicare Pharmacy. Quick, reliable, and always genuine.
-            </div>
-            {/* Add CTA and features here */}
+    <section className="relative w-full h-screen bg-gradient-to-br from-secondary-base to-primary-light">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full">
+        <div className="flex flex-col md:grid md:grid-cols-2 h-full">
+          {/* Headline - Above image on mobile, left side on desktop */}
+          <div className="md:pt-24 pt-16 order-1 md:order-1">
+            <h1 className="text-6xl sm:text-7xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-text-dark leading-[1.1]">
+              Your Health.
+              <br />
+              Your Way.
+            </h1>
           </div>
-          {/* Right Column */}
-          <div className="flex-1 flex flex-col justify-end items-center min-h-hero md:min-h-hero-lg">
+
+          {/* Image - Below headline on mobile, right side on desktop */}
+          <div className="relative flex-1 md:flex-none h-[70vh] md:h-full order-2 md:order-2 flex items-end">
             <Image
-              src="https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/imagedelivery%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L2ltYWdlZGVsaXZlcnkgMS5wbmciLCJpYXQiOjE3NDc3NTczMjAsImV4cCI6MTc3OTI5MzMyMH0.CelTa5uUBSHTPG2V4GrGHp96zGI8PUtuQqOxzU2gbYs"
-              alt="Delivery Person"
-              width={320}
-              height={480}
-              className="hero-image"
+              src="https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/coupleimage%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L2NvdXBsZWltYWdlIDEucG5nIiwiaWF0IjoxNzQ4MDg3NzQ1LCJleHAiOjE3Nzk2MjM3NDV9.MVKhtvnuXRXISdbe7SxFFiF8XJYPEIT28njvb_1Bs7Y"
+              alt="Hero"
+              fill
+              priority
+              className="object-contain object-bottom md:object-right-bottom"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
         </div>

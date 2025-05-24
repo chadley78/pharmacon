@@ -54,9 +54,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
       case 'direct_purchase':
         return 'from-yellow-400 to-yellow-100'
       case 'prescription':
-        return 'from-blue-600 to-blue-300'
+        return 'from-primary-base to-primary-light'
       case 'restricted':
-        return 'from-fuchsia-700 to-pink-400'
+        return 'from-primary-base/90 to-primary-light/70'
       default:
         return 'from-gray-100 to-gray-200'
     }
@@ -206,7 +206,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   return (
     <div className={`min-h-screen bg-gradient-to-b ${getGradientClass(product.category)}`}>
       {/* Gradient/Image Section */}
-      <div className="w-full bg-gradient-to-br flex flex-col items-center justify-center" style={{ minHeight: '500px' }}>
+      <div className="w-full bg-gradient-to-br flex flex-col items-center justify-center pt-24 pb-12 px-4 sm:px-8" style={{ minHeight: '500px' }}>
         <div className="relative z-10 flex justify-center w-full" style={{ paddingBottom: '100px' }}>
           {product.image_url ? (
             <Image

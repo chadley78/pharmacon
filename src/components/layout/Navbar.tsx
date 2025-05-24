@@ -1,12 +1,12 @@
 'use client'
 
+import React from 'react';
 import Link from 'next/link'
-import Image from 'next/image'
 import { useEffect, useState, Suspense, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import CartIcon from '@/components/cart/CartIcon'
-import { useRouter } from 'next/navigation'
-import { UserIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useRouter, usePathname } from 'next/navigation'
+import { UserIcon, Bars3Icon, XMarkIcon, HomeIcon } from '@heroicons/react/24/outline'
 import { SearchBar } from '@/components/ui/SearchBar'
 
 // Mobile menu component
@@ -173,8 +173,22 @@ export default function Navbar() {
   const [session, setSession] = useState<unknown>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
+
+  const isTransparentPage = pathname === '/' || pathname.startsWith('/products/')
+
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const checkAdminStatus = useCallback(async (userId: string) => {
     console.log('Checking admin status for user:', userId)
@@ -218,7 +232,13 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isTransparentPage 
+        ? isScrolled 
+          ? 'bg-white/80 backdrop-blur-sm shadow-sm' 
+          : 'bg-transparent'
+        : 'bg-white shadow-sm'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-16">
           {/* Left section with logo and search */}
@@ -226,21 +246,25 @@ export default function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="sm:hidden p-2 rounded-md hover:bg-gray-100"
+              className={`sm:hidden p-2 rounded-md ${
+                isTransparentPage && !isScrolled 
+                  ? 'text-text-dark hover:bg-white/10' 
+                  : 'hover:bg-gray-100'
+              }`}
               aria-label="Open menu"
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
 
-            <Link href="/" className="flex items-center">
-              <Image
-                src="https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/Logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L0xvZ28ucG5nIiwiaWF0IjoxNzQ3OTk0MDg1LCJleHAiOjE3Nzk1MzAwODV9.Kk67XE4n-MDqCrBto8Z9Ff6upO-D8Cs49Jfiw5nD6ZQ"
-                alt="Pharmacon Logo"
-                width={120}
-                height={40}
-                className="h-8 w-auto"
-                priority
-              />
+            <Link 
+              href="/" 
+              className={`flex items-center p-2 rounded-md transition-colors ${
+                isTransparentPage && !isScrolled
+                  ? 'text-text-dark hover:text-text-dark/80' 
+                  : 'text-gray-700 hover:text-black'
+              }`}
+            >
+              <HomeIcon className="h-8 w-8" />
             </Link>
 
             {/* Search bar - hidden on mobile */}
@@ -250,7 +274,7 @@ export default function Navbar() {
               }>
                 <SearchBar 
                   placeholder="Search products..."
-                  className="w-full"
+                  className={`w-full ${isTransparentPage && !isScrolled ? 'bg-white/10 text-text-dark placeholder-text-dark/70' : ''}`}
                   debounceMs={500}
                 />
               </Suspense>
@@ -263,21 +287,25 @@ export default function Navbar() {
             <div className="sm:hidden w-32">
               <SearchBar 
                 placeholder="Search..."
-                className="w-full"
+                className={`w-full ${isTransparentPage && !isScrolled ? 'bg-white/10 text-text-dark placeholder-text-dark/70' : ''}`}
                 debounceMs={500}
               />
             </div>
 
             {/* Cart icon - always visible */}
             <div className="relative">
-              <CartIcon />
+              <CartIcon className={isTransparentPage && !isScrolled ? 'text-text-dark' : ''} />
             </div>
 
             {/* Desktop menu items */}
             <div className="hidden sm:flex items-center space-x-4">
               <Link
                 href="/products"
-                className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={`${
+                  isTransparentPage && !isScrolled
+                    ? 'text-text-dark hover:text-text-dark/80' 
+                    : 'text-gray-700 hover:text-black'
+                } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
               >
                 Products
               </Link>
@@ -286,21 +314,33 @@ export default function Navbar() {
                   {isAdmin && (
                     <Link
                       href="/admin/questionnaires"
-                      className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                      className={`${
+                        isTransparentPage && !isScrolled
+                          ? 'text-text-dark hover:text-text-dark/80' 
+                          : 'text-gray-700 hover:text-black'
+                      } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
                     >
                       Admin
                     </Link>
                   )}
                   <Link
                     href="/account"
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-900 hover:bg-yellow-400 hover:text-black transition-colors duration-150 shadow-sm focus:outline-none"
+                    className={`w-9 h-9 flex items-center justify-center rounded-full ${
+                      isTransparentPage && !isScrolled
+                        ? 'bg-white/10 text-text-dark hover:bg-white/20' 
+                        : 'bg-gray-100 text-gray-900 hover:bg-yellow-400 hover:text-black'
+                    } transition-colors duration-150 shadow-sm focus:outline-none`}
                     aria-label="Account"
                   >
                     <UserIcon className="h-5 w-5" />
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    className={`${
+                      isTransparentPage && !isScrolled
+                        ? 'text-text-dark hover:text-text-dark/80' 
+                        : 'text-gray-700 hover:text-black'
+                    } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
                   >
                     Sign Out
                   </button>
@@ -309,13 +349,21 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/login"
-                    className="text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    className={`${
+                      isTransparentPage && !isScrolled
+                        ? 'text-text-dark hover:text-text-dark/80' 
+                        : 'text-gray-700 hover:text-black'
+                    } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
                   >
                     Login
                   </Link>
                   <Link
                     href="/signup"
-                    className="bg-yellow-400 text-black px-3 py-2 rounded-md text-sm font-bold hover:bg-yellow-300 transition-colors"
+                    className={`${
+                      isTransparentPage && !isScrolled
+                        ? 'bg-text-dark text-white hover:bg-text-dark/90' 
+                        : 'bg-yellow-400 text-black hover:bg-yellow-300'
+                    } px-3 py-2 rounded-md text-sm font-bold transition-colors`}
                   >
                     Sign Up
                   </Link>

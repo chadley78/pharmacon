@@ -14,7 +14,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({
-  className,
+  className = '',
   placeholder = 'Search products...',
   debounceMs = 300,
   onSubmit,
@@ -52,7 +52,7 @@ export function SearchBar({
       console.log('🔍 SearchBar - Updating input from URL:', urlQuery)
       setInputValue(urlQuery)
     }
-  }, [searchParams]) // Remove inputValue from dependencies to prevent the sync loop
+  }, [searchParams, inputValue, isLoading])
 
   /**
    * Debounced URL Update Effect
@@ -107,10 +107,13 @@ export function SearchBar({
     }
   }
 
+  const bgClasses = className.split(' ').filter(c => c.startsWith('bg-')).join(' ')
+  const nonBgClasses = className.split(' ').filter(c => !c.startsWith('bg-')).join(' ')
+
   return (
     <form 
       onSubmit={handleSubmit} 
-      className={cn('relative w-full max-w-sm', className)}
+      className={cn('relative w-full max-w-sm', nonBgClasses)}
       onClick={() => console.log('🔍 SearchBar - Form clicked')}
     >
       <div className="relative">
@@ -122,7 +125,7 @@ export function SearchBar({
           onChange={handleChange}
           onClick={() => console.log('🔍 SearchBar - Input clicked')}
           onFocus={() => console.log('🔍 SearchBar - Input focused')}
-          className="pl-9 pr-4"
+          className={cn("pl-9 pr-4", bgClasses)}
           aria-label="Search products"
         />
         {isLoading && (
