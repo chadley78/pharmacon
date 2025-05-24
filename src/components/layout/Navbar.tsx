@@ -43,7 +43,7 @@ function MobileMenu({ isOpen, onClose, session, isAdmin, handleSignOut }: {
               className="p-2 rounded-md hover:bg-gray-100"
               aria-label="Close menu"
             >
-              <XMarkIcon className="h-6 w-6" />
+              <XMarkIcon className="h-8 w-8" />
             </button>
           </div>
 
@@ -253,7 +253,7 @@ export default function Navbar() {
               }`}
               aria-label="Open menu"
             >
-              <Bars3Icon className="h-6 w-6" />
+              <Bars3Icon className="h-8 w-8" />
             </button>
 
             <Link 

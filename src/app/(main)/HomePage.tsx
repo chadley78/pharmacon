@@ -28,40 +28,59 @@ export function HomePage() {
     <div className="relative">
       <HeroBanner />
       
-      {/* Featured Products Section */}
+      {/* Featured Product Categories Section */}
       <motion.section 
-        className="py-16 bg-gradient-to-b from-white to-gray-100 relative overflow-hidden"
+        className="relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={staggerContainer}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-base/20 to-primary-light/20" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.h2 
-            className="text-3xl font-bold text-primary-base mb-8"
-            variants={fadeInUp}
-          >
-            Featured Products
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((item) => (
+        <div className="relative">
+          <div className="grid grid-cols-1 lg:grid-cols-3">
+            {[
+              { 
+                title: 'Weight\nLoss',
+                image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/weightloss.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L3dlaWdodGxvc3MuanBnIiwiaWF0IjoxNzQ4MTA0Mjg0LCJleHAiOjE3Nzk2NDAyODR9.JI0p4AM7EUS2HcYAXJFzubX52XpG3wuT8ieQRyY3fkE'
+              },
+              { 
+                title: 'Hair\nRetention',
+                image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/hair.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L2hhaXIuanBnIiwiaWF0IjoxNzQ4MTA0NzA2LCJleHAiOjE3Nzk2NDA3MDZ9.r39zmCvfaxBeb79GCJ_X6UJVCzWkskg6QzQbULwkb2k'
+              },
+              { 
+                title: 'Sexual\nHealth',
+                image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/nicecouple.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L25pY2Vjb3VwbGUuanBnIiwiaWF0IjoxNzQ4MTA1NDA4LCJleHAiOjE3Nzk2NDE0MDh9.cW2PSJ4zFwCVFJSKC7l_7tS07wXNWBT6wf_peSuKZYY'
+              }
+            ].map((category, index) => (
               <motion.div 
-                key={item} 
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                key={index} 
+                className="relative h-[600px] overflow-hidden group"
                 variants={fadeInUp}
               >
-                <div className="aspect-[4/3] relative bg-gradient-to-br from-primary-base/10 to-primary-light/10">
-                  <div className="absolute inset-0 flex items-center justify-center text-primary-base/30">
-                    <span className="text-4xl">Product Image</span>
-                  </div>
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img
+                    src={category.image}
+                    alt={category.title.replace('\n', ' ')}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30" />
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-text-dark mb-2">Featured Product {item}</h3>
-                  <p className="text-gray-600 mb-4">Quick description of the product and its benefits for the customer.</p>
-                  <button className="w-full bg-primary-base text-white px-4 py-2 rounded-full hover:bg-primary-light transition-colors duration-300">
-                    Learn More
-                  </button>
+
+                {/* Content */}
+                <div className="absolute inset-0 flex flex-col">
+                  {/* Title positioned at top left */}
+                  <div className="p-8">
+                    <h3 className="text-5xl font-bold text-primary-base whitespace-pre-line leading-tight">{category.title}</h3>
+                  </div>
+                  
+                  {/* Ghost button positioned at bottom */}
+                  <div className="mt-auto p-8">
+                    <button className="relative w-40 border border-primary-base text-primary-base px-4 py-2 rounded-lg font-semibold overflow-hidden group">
+                      <span className="relative z-10 group-hover:text-text-dark transition-colors duration-300">Learn More</span>
+                      <div className="absolute inset-0 bg-primary-base transform scale-x-0 origin-right group-hover:scale-x-100 transition-transform duration-300 ease-in-out" />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}
