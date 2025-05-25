@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { useCartStore } from '@/stores/cartStore'
 import PaymentForm from '@/components/checkout/PaymentForm'
 import CartSummary from '@/components/cart/CartSummary'
@@ -10,7 +9,6 @@ import Toast from '@/components/ui/Toast'
 
 export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; show: boolean }>({
     message: '',
     type: 'success',
@@ -18,7 +16,6 @@ export default function CheckoutPage() {
   })
 
   const router = useRouter()
-  const supabase = createClient()
   const { items = [], total = 0, clearCart } = useCartStore()
 
   useEffect(() => {
@@ -39,7 +36,6 @@ export default function CheckoutPage() {
       })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to process payment'
-      setError(errorMessage)
       setToast({
         message: errorMessage,
         type: 'error',
@@ -51,7 +47,6 @@ export default function CheckoutPage() {
   }
 
   const handlePaymentError = (error: string) => {
-    setError(error)
     setToast({
       message: error,
       type: 'error',

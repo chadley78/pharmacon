@@ -1,222 +1,191 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { formatAmountFromStripe } from '@/lib/stripe'
-import { Order, OrderItem } from '@/lib/types'
-import Image from 'next/image'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Order, Address } from '@/lib/types'
 
 export default function SuccessContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
-  const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const searchParams = useSearchParams()
+  const orderId = searchParams.get('orderId')
   const paymentIntentId = searchParams.get('payment_intent')
+  const guestEmail = searchParams.get('guest_email')
 
   useEffect(() => {
-    // Log payment intent ID for debugging
-    console.log('SuccessContent Mount - Debug Info:', {
+    console.log('Success Page Mount - Debug Info:', {
+      orderId,
       paymentIntentId,
+      guestEmail,
       allParams: Object.fromEntries(searchParams.entries())
     })
 
+    if (!orderId) {
+      router.push('/')
+      return
+    }
+
     const fetchOrder = async () => {
-      if (!paymentIntentId) {
-        setError('No payment information found')
-        setLoading(false)
-        return
-      }
-
       try {
-        const supabase = createClient()
-
-        // Get the current user
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        if (userError || !user) {
-          throw new Error('Authentication required')
+        const url = new URL(`/api/orders/${orderId}`, window.location.origin)
+        if (guestEmail) {
+          url.searchParams.set('guest_email', guestEmail)
         }
-
-        // Get the order
-        const { data: orderData, error: orderError } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('stripe_payment_intent_id', paymentIntentId)
-          .eq('user_id', user.id)
-          .single()
-
-        if (orderError) {
-          throw new Error('Order not found')
+        const response = await fetch(url.toString(), {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
+        if (!response.ok) {
+          throw new Error('Failed to fetch order')
         }
-
+        const orderData = await response.json()
         setOrder(orderData)
-
-        // Get order items
-        const { data: itemsData, error: itemsError } = await supabase
-          .from('order_items')
-          .select(`
-            *,
-            product:products(*)
-          `)
-          .eq('order_id', orderData.id)
-
-        if (itemsError) {
-          throw new Error('Failed to fetch order items')
-        }
-
-        setOrderItems(itemsData)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch order details')
+        console.error('Error fetching order:', err)
+        setError('Failed to load order details')
       } finally {
         setLoading(false)
       }
     }
 
     fetchOrder()
-  }, [paymentIntentId])
+  }, [orderId, router, guestEmail, searchParams])
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Loading order details...</h1>
+          <h2 className="text-lg font-medium text-gray-900">Loading order details...</h2>
         </div>
       </div>
     )
   }
 
-  if (error) {
+  if (error || !order) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Error</h1>
-          <p className="mt-2 text-sm text-gray-500">{error}</p>
-          <div className="mt-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-              Return to home
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!order) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Order not found</h1>
-          <p className="mt-2 text-sm text-gray-500">
-            We couldn&apos;t find your order. Please contact support if you believe this is an error.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500"
-            >
-              Return to home
-            </Link>
-          </div>
+          <h2 className="text-lg font-medium text-red-600">Error</h2>
+          <p className="mt-2 text-gray-600">{error || 'Order not found'}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Return to Home
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Thank you for your order!</h1>
-        <p className="mt-2 text-sm text-gray-500">
-          We&apos;ve received your order and it&apos;s being processed.
+    <div className="max-w-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="text-center mb-8">
+        <div className="mb-4">
+          <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900">Order Successful!</h1>
+        <p className="mt-2 text-gray-600">
+          Thank you for your order. Your order number is {order.id}
         </p>
       </div>
 
-      <div className="mt-12">
-        <div className="border-t border-gray-200 py-6">
-          <h2 className="text-lg font-medium text-gray-900">Order Details</h2>
-          <dl className="mt-4 space-y-4">
-            <div className="flex justify-between">
-              <dt className="text-sm font-medium text-gray-500">Order number</dt>
-              <dd className="text-sm text-gray-900">{order.id}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-sm font-medium text-gray-500">Date</dt>
-              <dd className="text-sm text-gray-900">
-                {new Date(order.created_at).toLocaleDateString()}
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Order Details</h3>
+          <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            Order placed on {new Date(order.created_at).toLocaleDateString()}
+          </p>
+        </div>
+
+        <div className="border-t border-gray-200">
+          <dl>
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Order Status</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {order.status}
               </dd>
             </div>
-            <div className="flex justify-between">
+
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Shipping Address</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <AddressDisplay address={order.shipping_address} />
+              </dd>
+            </div>
+
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Billing Address</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <AddressDisplay address={order.billing_address} />
+              </dd>
+            </div>
+
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Items</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
+                  {order.order_items.map((item) => (
+                    <li key={item.id} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                      <div className="w-0 flex-1 flex items-center">
+                        <span className="ml-2 flex-1 w-0 truncate">
+                          {item.product.name} x {item.quantity}
+                        </span>
+                      </div>
+                      <div className="ml-4 flex-shrink-0">
+                        €{(item.price_at_time * item.quantity).toFixed(2)}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Total</dt>
-              <dd className="text-sm font-medium text-gray-900">
-                €{formatAmountFromStripe(order.total).toFixed(2)}
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                €{order.total.toFixed(2)}
               </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-sm font-medium text-gray-500">Status</dt>
-              <dd className="text-sm text-gray-900 capitalize">{order.status}</dd>
             </div>
           </dl>
         </div>
-
-        <div className="border-t border-gray-200 py-6">
-          <h2 className="text-lg font-medium text-gray-900">Items</h2>
-          <ul className="mt-4 divide-y divide-gray-200">
-            {orderItems.map((item) => (
-              <li key={item.id} className="py-4 flex">
-                <div className="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
-                  {item.product?.image_url && (
-                    <Image
-                      src={item.product.image_url}
-                      alt={item.product.name}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-center object-cover"
-                    />
-                  )}
-                </div>
-                <div className="ml-4 flex-1 flex flex-col">
-                  <div>
-                    <div className="flex justify-between text-base font-medium text-gray-900">
-                      <h3>{item.product?.name || 'Product not found'}</h3>
-                      <p className="ml-4">€{formatAmountFromStripe(item.price_at_time * item.quantity).toFixed(2)}</p>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-500">Quantity: {item.quantity}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="border-t border-gray-200 py-6">
-          <h2 className="text-lg font-medium text-gray-900">Shipping Address</h2>
-          <address className="mt-4 text-sm text-gray-500 not-italic">
-            {order.shipping_address.full_name}<br />
-            {order.shipping_address.address_line1}<br />
-            {order.shipping_address.address_line2 && (
-              <>
-                {order.shipping_address.address_line2}<br />
-              </>
-            )}
-            {order.shipping_address.city}, {order.shipping_address.postal_code}<br />
-            {order.shipping_address.country}
-          </address>
-        </div>
-
-        <div className="mt-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-blue-600 hover:text-blue-500"
-          >
-            Continue Shopping
-          </Link>
-        </div>
       </div>
+
+      <div className="mt-8 flex justify-center space-x-4">
+        <button
+          onClick={() => router.push('/')}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        >
+          Return to Home
+        </button>
+        {order.user_id && (
+          <button
+            onClick={() => router.push('/account/orders')}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            View All Orders
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function AddressDisplay({ address }: { address: Address }) {
+  return (
+    <div>
+      <p>{address.full_name}</p>
+      <p>{address.address_line1}</p>
+      {address.address_line2 && <p>{address.address_line2}</p>}
+      <p>{address.city}{address.state ? `, ${address.state}` : ''} {address.postal_code}</p>
+      <p>{address.country}</p>
+      <p>{address.phone}</p>
     </div>
   )
 } 

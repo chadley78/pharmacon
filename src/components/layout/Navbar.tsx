@@ -180,15 +180,15 @@ export default function Navbar() {
 
   const isTransparentPage = pathname === '/' || pathname.startsWith('/products/')
 
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 0)
+  }, [setIsScrolled])
+
   // Add scroll event listener
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0)
-    }
-
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [handleScroll])
 
   const checkAdminStatus = useCallback(async (userId: string) => {
     console.log('Checking admin status for user:', userId)

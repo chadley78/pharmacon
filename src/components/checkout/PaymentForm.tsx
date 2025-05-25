@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { createClient } from '@/lib/supabase/client'
@@ -8,7 +8,7 @@ import { useCartStore } from '@/stores/cartStore'
 import { Address } from '@/lib/types'
 import ShippingForm from '@/app/(main)/checkout/ShippingForm'
 import BillingForm from '@/app/(main)/checkout/BillingForm'
-import { PaymentIntent } from '@stripe/stripe-js'
+import { PaymentIntent, Stripe } from '@stripe/stripe-js'
 
 interface PaymentFormProps {
   onSuccess: () => void
@@ -26,7 +26,7 @@ function PaymentFormSteps({
 }: PaymentFormProps & { 
   setClientSecret: (secret: string | null) => void,
   clientSecret: string | null,
-  stripePromise: Promise<any>
+  stripePromise: Promise<Stripe | null>
 }) {
   const [step, setStep] = useState<'shipping' | 'billing' | 'payment'>('shipping')
   const [shippingAddress, setShippingAddress] = useState<Address | null>(null)
@@ -35,9 +35,8 @@ function PaymentFormSteps({
   const [isGuest, setIsGuest] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const router = useRouter()
   const supabase = createClient()
-  const { items, total } = useCartStore()
+  const { items } = useCartStore()
 
   const handleShippingSubmit = async (address: Address) => {
     setShippingAddress(address)
@@ -74,7 +73,9 @@ function PaymentFormSteps({
       const { clientSecret: secret } = await response.json()
       setClientSecret(secret)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initialize payment')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize payment'
+      setError(errorMessage)
+      onError(errorMessage)
       setStep('shipping')
     }
   }
@@ -182,7 +183,6 @@ function PaymentFormSteps({
     <Elements stripe={stripePromise} options={{ clientSecret: clientSecret! }}>
       <StripePaymentForm
         onSuccess={onSuccess}
-        onError={onError}
         loading={loading}
         onBack={() => setStep('billing')}
         isGuest={isGuest}
@@ -196,14 +196,13 @@ function PaymentFormSteps({
 
 function StripePaymentForm({ 
   onSuccess, 
-  onError, 
   loading,
   onBack,
   isGuest,
   guestEmail,
   shippingAddress,
   billingAddress
-}: PaymentFormProps & { 
+}: Omit<PaymentFormProps, 'onError'> & { 
   onBack: () => void,
   isGuest: boolean,
   guestEmail: string,
@@ -219,6 +218,8 @@ function StripePaymentForm({
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null)
   const [orderId, setOrderId] = useState<string | null>(null)
 
+  const supabase = createClient()
+
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -231,6 +232,9 @@ function StripePaymentForm({
     setIsProcessing(true)
 
     try {
+      // Get the current user state
+      const { data: { user } } = await supabase.auth.getUser()
+
       console.log('Starting payment confirmation...')
       const { error: submitError, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -255,7 +259,7 @@ function StripePaymentForm({
         console.log('Attempting to create order...')
         const orderData = {
           paymentIntentId: typedPaymentIntent.id,
-          guestEmail: isGuest ? guestEmail : undefined,
+          guestEmail: !user ? guestEmail : undefined,
           shippingAddress,
           billingAddress,
           items,
@@ -373,18 +377,19 @@ function StripePaymentForm({
 }
 
 export default function PaymentForm(props: PaymentFormProps) {
-  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null)
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error] = useState<string | null>(null)
+
+  const loadStripe = useCallback(async () => {
+    const { getStripe } = await import('@/lib/stripe')
+    setStripePromise(getStripe())
+  }, [setStripePromise])
 
   // Initialize Stripe
   useEffect(() => {
-    const loadStripe = async () => {
-      const { getStripe } = await import('@/lib/stripe')
-      setStripePromise(getStripe())
-    }
     loadStripe()
-  }, [])
+  }, [loadStripe])
 
   if (error) {
     return (

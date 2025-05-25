@@ -20,7 +20,6 @@ export default function CartSummary({ items = [], total }: CartSummaryProps) {
   }
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-  const shippingCost = 0 // Free shipping for now
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

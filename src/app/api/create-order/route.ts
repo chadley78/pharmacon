@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getStripeServer } from '@/lib/stripe'
-import { OrderStatus } from '@/lib/types'
+import { OrderStatus, CartItem } from '@/lib/types'
 import { Address } from '@/lib/types'
 
 interface RequestBody {
@@ -10,7 +10,7 @@ interface RequestBody {
   guestEmail?: string
   shippingAddress?: Address
   billingAddress?: Address
-  items: any[]
+  items: CartItem[]
 }
 
 export async function POST(request: Request) {
@@ -85,8 +85,11 @@ export async function POST(request: Request) {
           { status: 400 }
         )
       }
-      if (!user && paymentIntent.metadata.guestEmail !== guestEmail) {
-        console.error('Payment intent does not belong to guest')
+      if (!user && (paymentIntent.metadata.guestEmail || '') !== (guestEmail || '')) {
+        console.error('Payment intent does not belong to guest', {
+          paymentIntentGuestEmail: paymentIntent.metadata.guestEmail,
+          providedGuestEmail: guestEmail
+        })
         return NextResponse.json(
           { error: 'Invalid payment intent' },
           { status: 400 }
@@ -101,8 +104,8 @@ export async function POST(request: Request) {
     }
 
     // Calculate order total and subtotal
-    const subtotal = items.reduce((sum: number, item: any) => {
-      return sum + (item.product.price * item.quantity)
+    const subtotal = items.reduce((sum: number, item: CartItem) => {
+      return sum + (item.product!.price * item.quantity)
     }, 0)
     const shippingCost = 0 // Free shipping for now
     const total = subtotal + shippingCost
@@ -142,11 +145,11 @@ export async function POST(request: Request) {
     console.log('Order created:', order.id)
 
     // Create order items
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item: CartItem) => ({
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
-      price_at_time: item.product.price,
+      price_at_time: item.product!.price,
     }))
 
     console.log('Creating order items:', orderItems.length)

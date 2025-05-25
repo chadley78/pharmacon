@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getStripeServer } from '@/lib/stripe'
-import { OrderStatus, CartItem } from '@/lib/types'
+import { CartItem } from '@/lib/types'
 import { Address } from '@/lib/types'
 import Stripe from 'stripe'
 

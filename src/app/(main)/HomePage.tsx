@@ -1,9 +1,36 @@
 'use client';
 
+import { useEffect, useState } from 'react'
+import { getSignedUrls } from '@/lib/supabase/storage'
+import Image from 'next/image'
 import HeroBanner from '@/components/homepage/HeroBanner';
 import { motion } from 'framer-motion';
 
 export function HomePage() {
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadImageUrls() {
+      try {
+        const paths = [
+          'weightloss.jpg',
+          'hair.jpg',
+          'nicecouple.jpg',
+          'coupleimage 1.png'
+        ]
+        const urls = await getSignedUrls(paths)
+        setImageUrls(urls)
+      } catch (error) {
+        console.error('Error loading image URLs:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadImageUrls()
+  }, [])
+
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -26,6 +53,9 @@ export function HomePage() {
 
   return (
     <div className="relative">
+      {/* Gradient overlay for the entire page */}
+      <div className="fixed inset-0 bg-gradient-to-br from-primary-base/90 to-primary-light/70 pointer-events-none" />
+      
       <HeroBanner />
       
       {/* Content wrapper with higher z-index */}
@@ -43,15 +73,15 @@ export function HomePage() {
               {[
                 { 
                   title: 'Weight\nLoss',
-                  image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/weightloss.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L3dlaWdodGxvc3MuanBnIiwiaWF0IjoxNzQ4MTA0Mjg0LCJleHAiOjE3Nzk2NDAyODR9.JI0p4AM7EUS2HcYAXJFzubX52XpG3wuT8ieQRyY3fkE'
+                  imagePath: 'weightloss.jpg'
                 },
                 { 
                   title: 'Hair\nRetention',
-                  image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/hair.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L2hhaXIuanBnIiwiaWF0IjoxNzQ4MTA0NzA2LCJleHAiOjE3Nzk2NDA3MDZ9.r39zmCvfaxBeb79GCJ_X6UJVCzWkskg6QzQbULwkb2k'
+                  imagePath: 'hair.jpg'
                 },
                 { 
                   title: 'Sexual\nHealth',
-                  image: 'https://qitxftuzktzxbkacneve.supabase.co/storage/v1/object/sign/imagery/nicecouple.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5X2IyMWZiMzgwLWY3MjQtNGYwMy1iOWZmLWQ2ODQwNTM2NzI0OSJ9.eyJ1cmwiOiJpbWFnZXJ5L25pY2Vjb3VwbGUuanBnIiwiaWF0IjoxNzQ4MTA1NDA4LCJleHAiOjE3Nzk2NDE0MDh9.cW2PSJ4zFwCVFJSKC7l_7tS07wXNWBT6wf_peSuKZYY'
+                  imagePath: 'nicecouple.jpg'
                 }
               ].map((category, index) => (
                 <motion.div 
@@ -61,11 +91,17 @@ export function HomePage() {
                 >
                   {/* Background Image */}
                   <div className="absolute inset-0">
-                    <img
-                      src={category.image}
-                      alt={category.title.replace('\n', ' ')}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+                    {loading ? (
+                      <div className="w-full h-full bg-gray-100 animate-pulse" />
+                    ) : (
+                      <Image
+                        src={imageUrls[category.imagePath]}
+                        alt={category.title.replace('\n', ' ')}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        fill
+                        priority={index === 0} // Load first image with priority
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30" />
                   </div>
 

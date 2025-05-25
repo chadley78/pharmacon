@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Cart, CartItem as DBCartItem, Product } from '@/lib/types'
+import { CartItem as DBCartItem, Product } from '@/lib/types'
 
 // Type for cart items in local storage (omits user_id)
 export type LocalCartItem = Omit<DBCartItem, 'user_id'>

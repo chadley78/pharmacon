@@ -31,8 +31,10 @@ export function SearchBar({
    * This effect syncs the input value with the URL query parameter.
    * It ONLY runs when the URL changes (e.g., through navigation or browser back/forward).
    * 
-   * IMPORTANT: We use a ref to track typing state instead of dependencies
-   * to prevent feedback loops while typing.
+   * Note: inputValue is intentionally omitted from dependencies to prevent feedback loops.
+   * The effect uses isTypingRef to track typing state instead, which prevents the input
+   * from being updated while the user is typing. This is a deliberate design choice
+   * to maintain a clear separation between URL-driven updates and user input.
    */
   useEffect(() => {
     const urlQuery = searchParams.get('q') || ''
