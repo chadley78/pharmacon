@@ -1,52 +1,65 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { CheckCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useEffect } from 'react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 interface ToastProps {
   message: string
-  type?: 'success' | 'error'
-  duration?: number
+  type: 'success' | 'error'
   onClose: () => void
 }
 
-export default function Toast({ message, type = 'success', duration = 3000, onClose }: ToastProps) {
-  const [isVisible, setIsVisible] = useState(true)
-
+export default function Toast({ message, type, onClose }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsVisible(false)
-      setTimeout(onClose, 300) // Wait for fade out animation
-    }, duration)
+      onClose()
+    }, 5000)
 
     return () => clearTimeout(timer)
-  }, [duration, onClose])
-
-  const baseClasses = "fixed bottom-4 right-4 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300"
-  const typeClasses = type === 'success' 
-    ? 'bg-green-50 text-green-800 border border-green-200'
-    : 'bg-red-50 text-red-800 border border-red-200'
-  const visibilityClasses = isVisible 
-    ? 'translate-y-0 opacity-100' 
-    : 'translate-y-2 opacity-0'
+  }, [onClose])
 
   return (
-    <div className={`${baseClasses} ${typeClasses} ${visibilityClasses}`}>
-      {type === 'success' ? (
-        <CheckCircleIcon className="h-5 w-5 text-green-500" />
-      ) : (
-        <XCircleIcon className="h-5 w-5 text-red-500" />
-      )}
-      <p className="text-sm font-medium">{message}</p>
-      <button
-        onClick={() => {
-          setIsVisible(false)
-          setTimeout(onClose, 300)
-        }}
-        className="ml-2 text-gray-400 hover:text-gray-600 focus:outline-none"
+    <div className="fixed bottom-4 right-4 z-50">
+      <div
+        className={`rounded-lg px-4 py-3 shadow-lg ${
+          type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+        }`}
       >
-        <XMarkIcon className="h-4 w-4" />
-      </button>
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            {type === 'success' ? (
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium">{message}</p>
+          </div>
+          <div className="ml-4 flex flex-shrink-0">
+            <button
+              type="button"
+              className="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+              onClick={onClose}
+            >
+              <span className="sr-only">Close</span>
+              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 } 

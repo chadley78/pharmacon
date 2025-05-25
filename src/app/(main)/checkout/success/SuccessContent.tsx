@@ -17,6 +17,12 @@ export default function SuccessContent() {
   const paymentIntentId = searchParams.get('payment_intent')
 
   useEffect(() => {
+    // Log payment intent ID for debugging
+    console.log('SuccessContent Mount - Debug Info:', {
+      paymentIntentId,
+      allParams: Object.fromEntries(searchParams.entries())
+    })
+
     const fetchOrder = async () => {
       if (!paymentIntentId) {
         setError('No payment information found')

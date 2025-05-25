@@ -56,21 +56,23 @@ export interface OrderItem {
   quantity: number
   price_at_time: number
   created_at: string
-  product?: Product
+  updated_at: string
+  product: Product
 }
 
 export interface Order {
   id: string
-  user_id: string
+  user_id: string | null
+  guest_email: string | null
   status: OrderStatus
-  shipping_address: Address
-  billing_address: Address
   subtotal: number
   shipping_cost: number
   total: number
+  shipping_address: Address
+  billing_address: Address
   stripe_payment_intent_id: string
-  stripe_customer_id?: string
+  stripe_customer_id: string
   created_at: string
   updated_at: string
-  items?: OrderItem[]
+  order_items: OrderItem[]
 } 

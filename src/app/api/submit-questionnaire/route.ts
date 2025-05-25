@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -7,7 +8,6 @@ export async function POST(request: Request) {
     let body
     try {
       body = await request.json()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
       return NextResponse.json(
         { error: 'Invalid JSON in request body' },
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { answers, productId } = body
+    const { answers, productId, guestEmail } = body
 
     // Validate required fields
     if (!answers || !productId) {
@@ -37,21 +37,17 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient()
+    const adminClient = await createAdminClient()
 
     // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
+    const { data: { user } } = await supabase.auth.getUser()
 
-    // Create questionnaire approval record with approved status
-    const { data: approval, error: insertError } = await supabase
+    // Create questionnaire approval record
+    const { data: approval, error: insertError } = await adminClient
       .from('questionnaire_approvals')
       .insert({
-        user_id: user.id,
+        user_id: user?.id || null,  // null for guest users
+        guest_email: !user ? guestEmail : null,  // email for guest users
         product_id: productId,
         questionnaire_answers: questionnaireAnswers,
         status: 'approved' // Always approved for MVP

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { Product } from '@/lib/types'
-import { useCart } from '@/lib/context/CartContext'
+import { useCartStore } from '@/stores/cartStore'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -39,7 +39,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const [error, setError] = useState<string | null>(null)
   const [questionnaireApproval, setQuestionnaireApproval] = useState<QuestionnaireApproval | null>(null)
   const [isQuestionnaireModalOpen, setIsQuestionnaireModalOpen] = useState(false)
-  const { addToCart } = useCart()
+  const { addItem } = useCartStore()
   const router = useRouter()
   const supabase = createClient()
   const [selectedDosage, setSelectedDosage] = useState(50)
@@ -99,15 +99,16 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           setLoading(false)
           return
         }
-        await addToCart(product, quantity, questionnaireApproval.id, selectedDosage, selectedTablets)
+        addItem(product, quantity, questionnaireApproval.id, selectedDosage, selectedTablets)
       } else {
-        await addToCart(product, quantity, undefined, selectedDosage, selectedTablets)
+        addItem(product, quantity, undefined, selectedDosage, selectedTablets)
       }
       setToast({
         message: 'Product added to cart successfully!',
         type: 'success',
         show: true
       })
+      router.push('/cart')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to add item to cart'
       setError(errorMessage)
@@ -116,9 +117,6 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         type: 'error',
         show: true
       })
-      if (errorMessage.includes('sign in')) {
-        router.push('/login')
-      }
     } finally {
       setLoading(false)
     }
@@ -156,12 +154,13 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
       if (result.status === 'approved') {
         setIsQuestionnaireModalOpen(false)
-        await addToCart(product, quantity, result.approvalId, selectedDosage, selectedTablets)
+        addItem(product, quantity, result.approvalId, selectedDosage, selectedTablets)
         setToast({
           message: 'Product added to cart successfully!',
           type: 'success',
           show: true
         })
+        router.push('/cart')
       } else {
         setToast({
           message: 'Your questionnaire was rejected. Please try again or contact support.',

@@ -1,14 +1,24 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getStripeServer } from '@/lib/stripe'
 import { OrderStatus } from '@/lib/types'
+import { Address } from '@/lib/types'
+
+interface RequestBody {
+  paymentIntentId: string
+  guestEmail?: string
+  shippingAddress?: Address
+  billingAddress?: Address
+  items: any[]
+}
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
+    const body = await request.json() as RequestBody
     console.log('Received request body:', body)
 
-    const { paymentIntentId, shippingAddress, billingAddress } = body
+    const { paymentIntentId, guestEmail, shippingAddress, billingAddress, items } = body
 
     if (!paymentIntentId) {
       console.error('Missing payment intent ID')
@@ -26,37 +36,59 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = await createClient()
+    // Use admin client for guest orders, regular client for authenticated users
+    const supabase = guestEmail ? createAdminClient() : await createClient()
     const stripe = getStripeServer()
 
-    // Get the current user
+    // Get the current user (optional for guest checkout)
     const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError) {
+    
+    // Only return auth error if we're not doing a guest checkout
+    if (userError && !guestEmail) {
       console.error('Auth error:', userError)
       return NextResponse.json(
         { error: 'Authentication error' },
         { status: 401 }
       )
     }
-    if (!user) {
-      console.error('No user found')
+
+    // For guest checkout, require email
+    if (!user && !guestEmail) {
+      console.error('Missing guest email')
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 401 }
+        { error: 'Guest email is required for guest checkout' },
+        { status: 400 }
       )
     }
 
-    console.log('User authenticated:', user.id)
+    console.log('User/guest info:', { userId: user?.id, guestEmail })
 
     // Verify the payment intent
+    let paymentIntent;
     try {
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+      paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
       console.log('Payment intent status:', paymentIntent.status)
       
       if (paymentIntent.status !== 'succeeded') {
         console.error('Payment not successful:', paymentIntent.status)
         return NextResponse.json(
           { error: 'Payment not successful' },
+          { status: 400 }
+        )
+      }
+
+      // Verify the payment intent belongs to this user/guest
+      if (user && paymentIntent.metadata.userId !== user.id) {
+        console.error('Payment intent does not belong to user')
+        return NextResponse.json(
+          { error: 'Invalid payment intent' },
+          { status: 400 }
+        )
+      }
+      if (!user && paymentIntent.metadata.guestEmail !== guestEmail) {
+        console.error('Payment intent does not belong to guest')
+        return NextResponse.json(
+          { error: 'Invalid payment intent' },
           { status: 400 }
         )
       }
@@ -68,35 +100,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get cart items
-    const { data: cartItems, error: cartError } = await supabase
-      .from('cart_items')
-      .select(`
-        *,
-        product:products(*)
-      `)
-      .eq('user_id', user.id)
-
-    if (cartError) {
-      console.error('Cart error:', cartError)
-      return NextResponse.json(
-        { error: 'Error fetching cart items' },
-        { status: 500 }
-      )
-    }
-
-    if (!cartItems || cartItems.length === 0) {
-      console.error('Cart is empty')
-      return NextResponse.json(
-        { error: 'Cart is empty' },
-        { status: 400 }
-      )
-    }
-
-    console.log('Cart items found:', cartItems.length)
-
     // Calculate order total and subtotal
-    const subtotal = cartItems.reduce((sum, item) => {
+    const subtotal = items.reduce((sum: number, item: any) => {
       return sum + (item.product.price * item.quantity)
     }, 0)
     const shippingCost = 0 // Free shipping for now
@@ -106,7 +111,8 @@ export async function POST(request: Request) {
 
     // Create the order
     const orderData = {
-      user_id: user.id,
+      user_id: user?.id || null,
+      guest_email: !user ? guestEmail : null,
       status: OrderStatus.PROCESSING,
       subtotal,
       shipping_cost: shippingCost,
@@ -114,6 +120,7 @@ export async function POST(request: Request) {
       shipping_address: shippingAddress,
       billing_address: billingAddress,
       stripe_payment_intent_id: paymentIntentId,
+      stripe_customer_id: paymentIntent.customer as string,
     }
 
     console.log('Creating order with data:', orderData)
@@ -135,7 +142,7 @@ export async function POST(request: Request) {
     console.log('Order created:', order.id)
 
     // Create order items
-    const orderItems = cartItems.map(item => ({
+    const orderItems = items.map((item: any) => ({
       order_id: order.id,
       product_id: item.product_id,
       quantity: item.quantity,
@@ -160,18 +167,20 @@ export async function POST(request: Request) {
 
     console.log('Order items created successfully')
 
-    // Clear the cart
-    const { error: clearCartError } = await supabase
-      .from('cart_items')
-      .delete()
-      .eq('user_id', user.id)
+    // Clear the cart for logged-in users
+    if (user) {
+      const { error: clearCartError } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('user_id', user.id)
 
-    if (clearCartError) {
-      console.error('Error clearing cart:', clearCartError)
-      // Don't return error here as the order was created successfully
+      if (clearCartError) {
+        console.error('Error clearing cart:', clearCartError)
+        // Don't return error here as the order was created successfully
+      }
+
+      console.log('Cart cleared successfully')
     }
-
-    console.log('Cart cleared successfully')
 
     return NextResponse.json({
       orderId: order.id,

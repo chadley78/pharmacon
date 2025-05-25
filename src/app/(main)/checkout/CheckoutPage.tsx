@@ -1,114 +1,108 @@
 'use client'
 
-import { useState } from 'react'
-import { useCart } from '@/lib/context/CartContext'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Address } from '@/lib/types'
-import ShippingForm from './ShippingForm'
-import BillingForm from './BillingForm'
-import PaymentForm from './PaymentForm'
-import OrderSummary from './OrderSummary'
+import { createClient } from '@/lib/supabase/client'
+import { useCartStore } from '@/stores/cartStore'
+import PaymentForm from '@/components/checkout/PaymentForm'
+import CartSummary from '@/components/cart/CartSummary'
+import Toast from '@/components/ui/Toast'
 
-type CheckoutStep = 'shipping' | 'billing' | 'payment'
+export default function CheckoutPage() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; show: boolean }>({
+    message: '',
+    type: 'success',
+    show: false
+  })
 
-export function CheckoutPage() {
   const router = useRouter()
-  const { cart, loading } = useCart()
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>('shipping')
-  const [shippingAddress, setShippingAddress] = useState<Address | null>(null)
-  const [billingAddress, setBillingAddress] = useState<Address | null>(null)
+  const supabase = createClient()
+  const { items = [], total = 0, clearCart } = useCartStore()
 
-  if (loading) {
+  useEffect(() => {
+    if (!items || items.length === 0) {
+      router.push('/cart')
+      return
+    }
+  }, [items, router])
+
+  const handlePaymentSuccess = async () => {
+    setLoading(true)
+    try {
+      clearCart()
+      setToast({
+        message: 'Payment successful! Thank you for your order.',
+        type: 'success',
+        show: true
+      })
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process payment'
+      setError(errorMessage)
+      setToast({
+        message: errorMessage,
+        type: 'error',
+        show: true
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePaymentError = (error: string) => {
+    setError(error)
+    setToast({
+      message: error,
+      type: 'error',
+      show: true
+    })
+  }
+
+  // Show loading state while checking cart
+  if (!items) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">
-          <p className="text-gray-500">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
       </div>
     )
   }
 
-  if (cart.items.length === 0) {
-    router.push('/cart')
+  // Don't render anything if cart is empty (will redirect in useEffect)
+  if (items.length === 0) {
     return null
   }
 
-  const handleShippingSubmit = (address: Address) => {
-    setShippingAddress(address)
-    setCurrentStep('billing')
-  }
-
-  const handleBillingSubmit = (address: Address) => {
-    setBillingAddress(address)
-    setCurrentStep('payment')
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-x-12">
-        {/* Checkout Form */}
-        <div className="lg:col-span-7">
-          {/* Progress Steps */}
-          <nav aria-label="Progress" className="mb-8">
-            <ol role="list" className="flex items-center">
-              <li className={`relative ${currentStep === 'shipping' ? 'text-blue-600' : 'text-gray-500'}`}>
-                <span className="flex items-center">
-                  <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-current">
-                    <span className="h-2.5 w-2.5 rounded-full bg-current" />
-                  </span>
-                  <span className="ml-3 text-sm font-medium">Shipping</span>
-                </span>
-              </li>
-              <li className={`relative ml-8 ${currentStep === 'billing' ? 'text-blue-600' : 'text-gray-500'}`}>
-                <span className="flex items-center">
-                  <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-current">
-                    <span className="h-2.5 w-2.5 rounded-full bg-current" />
-                  </span>
-                  <span className="ml-3 text-sm font-medium">Billing</span>
-                </span>
-              </li>
-              <li className={`relative ml-8 ${currentStep === 'payment' ? 'text-blue-600' : 'text-gray-500'}`}>
-                <span className="flex items-center">
-                  <span className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-current">
-                    <span className="h-2.5 w-2.5 rounded-full bg-current" />
-                  </span>
-                  <span className="ml-3 text-sm font-medium">Payment</span>
-                </span>
-              </li>
-            </ol>
-          </nav>
+    <div className="bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl lg:max-w-none">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Checkout</h1>
 
-          {/* Form Steps */}
-          <div className="mt-8">
-            {currentStep === 'shipping' && (
-              <ShippingForm
-                initialData={shippingAddress}
-                onSubmit={handleShippingSubmit}
-              />
-            )}
-            {currentStep === 'billing' && (
-              <BillingForm
-                initialData={billingAddress}
-                shippingAddress={shippingAddress}
-                onSubmit={handleBillingSubmit}
-                onBack={() => setCurrentStep('shipping')}
-              />
-            )}
-            {currentStep === 'payment' && (
+          <div className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+            <div className="lg:col-span-7">
               <PaymentForm
-                onBack={() => setCurrentStep('billing')}
-                shippingAddress={shippingAddress!}
-                billingAddress={billingAddress!}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+                loading={loading}
               />
-            )}
+            </div>
+
+            <div className="mt-16 lg:col-span-5 lg:mt-0">
+              <CartSummary items={items} total={total} />
+            </div>
           </div>
         </div>
-
-        {/* Order Summary */}
-        <div className="mt-8 lg:mt-0 lg:col-span-5">
-          <OrderSummary cart={cart} />
-        </div>
       </div>
+
+      {/* Toast */}
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(prev => ({ ...prev, show: false }))}
+        />
+      )}
     </div>
   )
 } 
