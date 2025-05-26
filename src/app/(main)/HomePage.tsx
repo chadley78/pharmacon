@@ -128,16 +128,16 @@ export function HomePage() {
 
         {/* How It Works Section */}
         <motion.section 
-          className="py-16 bg-white relative"
+          className="py-16 bg-text-dark relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           variants={staggerContainer}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-base/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-base/20 to-transparent" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <motion.h2 
-              className="text-3xl font-bold text-primary-base mb-12 text-center"
+              className="text-3xl font-bold text-white mb-12 text-center"
               variants={fadeInUp}
             >
               How It Works
@@ -150,8 +150,9 @@ export function HomePage() {
               ].map((step, index) => (
                 <motion.div 
                   key={index} 
-                  className="text-center"
+                  className="text-center bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10"
                   variants={fadeInUp}
+                  whileHover={{ y: -5 }}
                 >
                   <motion.div 
                     className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-base to-primary-light flex items-center justify-center text-white text-2xl font-bold"
@@ -160,8 +161,8 @@ export function HomePage() {
                   >
                     {index + 1}
                   </motion.div>
-                  <h3 className="text-xl font-semibold text-text-dark mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.desc}</p>
+                  <h3 className="text-xl font-semibold text-white mb-2">{step.title}</h3>
+                  <p className="text-white/80">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
