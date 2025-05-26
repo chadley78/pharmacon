@@ -13,14 +13,14 @@ export default function HeroBanner() {
   const [loading, setLoading] = useState(true)
 
   const loadImageUrl = useCallback(async () => {
-    try {
-      const url = await getSignedUrl('coupleimage 1.png')
-      setImageUrl(url)
-    } catch (error) {
-      console.error('Error loading hero image URL:', error)
-    } finally {
-      setLoading(false)
-    }
+      try {
+        const url = await getSignedUrl('coupleimage 1.png')
+        setImageUrl(url)
+      } catch (error) {
+        console.error('Error loading hero image URL:', error)
+      } finally {
+        setLoading(false)
+      }
   }, [])
 
   useEffect(() => {

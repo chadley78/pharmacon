@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/lib/types'
 import { highlightText } from '@/lib/utils/highlight'
+import { getProductImageUrl } from '@/lib/utils/images'
 
 interface ProductCardProps {
   product: Product
@@ -41,9 +42,9 @@ export default function ProductCard({ product, searchQuery = '' }: ProductCardPr
       className={`group card-base ${getBorderHoverClass(product.category)}`}
     >
       <div className={`relative aspect-[4/3] w-full min-h-card sm:min-h-card-lg overflow-hidden rounded-t-card sm:rounded-t-card-lg bg-gradient-prescription ${getGradientClass(product.category)}`}>
-        {product.image_url ? (
+        {getProductImageUrl(product) ? (
           <Image
-            src={product.image_url}
+            src={getProductImageUrl(product) || ''}
             alt={product.name}
             width={500}
             height={500}

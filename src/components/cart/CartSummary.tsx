@@ -1,84 +1,83 @@
 'use client'
 
 import { LocalCartItem } from '@/stores/cartStore'
+import { ProductImage } from '@/components/common/ProductImage'
 
 interface CartSummaryProps {
   items: LocalCartItem[]
+  subtotal: number
+  shipping: number
   total: number
 }
 
-export default function CartSummary({ items = [], total }: CartSummaryProps) {
+export default function CartSummary({ items, subtotal = 0, shipping = 0, total = 0 }: CartSummaryProps) {
   if (!items || items.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
-        <div className="mt-6">
-          <p className="text-gray-500">Your cart is empty</p>
-        </div>
+      <div className="mt-8">
+        <p className="text-gray-500 text-center">Your cart is empty</p>
       </div>
     )
   }
 
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-900">Order Summary</h2>
+    <div className="mt-8">
+      <div className="flow-root">
+        <ul role="list" className="-my-6 divide-y divide-gray-200">
+          {items.map((item) => {
+            const itemPrice = item.product?.price || 0
+            const itemQuantity = item.quantity || 1
+            const itemTotal = itemPrice * itemQuantity
+
+            return (
+              <li key={item.id} className="flex py-6">
+                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                  {item.product ? (
+                    <ProductImage 
+                      product={item.product}
+                      size="sm"
+                      className="h-full w-full object-cover object-center"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-gray-100">
+                      <span className="text-gray-400 text-sm">No image</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="ml-4 flex flex-1 flex-col">
+                  <div>
+                    <div className="flex justify-between text-base font-medium text-gray-900">
+                      <h3>{item.product?.name || 'Product not available'}</h3>
+                      <p className="ml-4">€{itemTotal.toFixed(2)}</p>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-500">
+                      {item.dosage || 0}mg - {item.tablet_count || 0} tablets
+                    </p>
+                  </div>
+                  <div className="flex flex-1 items-end justify-between text-sm">
+                    <p className="text-gray-500">Qty {itemQuantity}</p>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       </div>
 
-      <div className="px-6 py-4 space-y-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {item.product?.image_url && (
-                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
-                  <img
-                    src={item.product.image_url}
-                    alt={item.product.name}
-                    className="h-full w-full object-cover object-center"
-                  />
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-medium text-gray-900">{item.product?.name || 'Product not available'}</p>
-                <div className="mt-1 flex flex-col space-y-1">
-                  {item.dosage && (
-                    <p className="text-xs text-gray-500">Dosage: {item.dosage}mg</p>
-                  )}
-                  {item.tablet_count && (
-                    <p className="text-xs text-gray-500">Tablets: {item.tablet_count}</p>
-                  )}
-                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                </div>
-              </div>
-            </div>
-            <p className="text-sm font-medium text-gray-900">
-              €{((item.product?.price || 0) * item.quantity).toFixed(2)}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="border-t border-gray-200 px-6 py-4 space-y-4">
-        <div className="flex items-center justify-between text-sm">
-          <p className="text-gray-600">Subtotal ({itemCount} items)</p>
-          <p className="font-medium text-gray-900">€{total.toFixed(2)}</p>
+      <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+        <div className="flex justify-between text-base font-medium text-gray-900">
+          <p>Subtotal</p>
+          <p>€{Number(subtotal).toFixed(2)}</p>
         </div>
-        
-        <div className="flex items-center justify-between text-sm">
-          <p className="text-gray-600">Shipping</p>
-          <p className="font-medium text-gray-900">Free</p>
+        <div className="flex justify-between text-base font-medium text-gray-900">
+          <p>Shipping</p>
+          <p>€{Number(shipping).toFixed(2)}</p>
         </div>
-
-        <div className="flex items-center justify-between text-base font-medium text-gray-900 pt-4 border-t border-gray-200">
+        <div className="flex justify-between text-base font-medium text-gray-900">
           <p>Total</p>
-          <p>€{total.toFixed(2)}</p>
+          <p>€{Number(total).toFixed(2)}</p>
         </div>
-
-        <p className="text-xs text-gray-500 mt-2">
-          Shipping and taxes calculated at checkout.
-        </p>
+        <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
       </div>
     </div>
   )

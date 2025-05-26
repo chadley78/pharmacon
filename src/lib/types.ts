@@ -11,6 +11,16 @@ export interface Product {
   is_active: boolean
   created_at: string
   updated_at: string
+  sku: string | null
+  manufacturer: string | null
+  requires_prescription: boolean
+  stock_quantity: number
+  dosage_instructions: string | null
+  side_effects: string | null
+  ingredients: string | null
+  storage_instructions: string | null
+  expiry_warning_days: number | null
+  gender: 'male' | 'female' | 'either' | null
 }
 
 export interface CartItem {

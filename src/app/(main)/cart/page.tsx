@@ -62,7 +62,12 @@ export default function CartPage() {
 
             {/* Order summary */}
             <div className="mt-8 lg:col-span-5 lg:mt-0">
-              <CartSummary items={items} total={total} />
+              <CartSummary 
+                items={items} 
+                subtotal={total}
+                shipping={0}
+                total={total} 
+              />
               
               <div className="mt-6">
                 <Link

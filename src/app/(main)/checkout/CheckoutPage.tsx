@@ -17,6 +17,8 @@ export default function CheckoutPage() {
 
   const router = useRouter()
   const { items = [], total = 0, clearCart } = useCartStore()
+  const subtotal = total // Since we don't have separate subtotal in cart store, using total as subtotal
+  const shipping = 0 // Free shipping for now
 
   useEffect(() => {
     if (!items || items.length === 0) {
@@ -84,7 +86,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-16 lg:col-span-5 lg:mt-0">
-              <CartSummary items={items} total={total} />
+              <CartSummary items={items} total={total} subtotal={subtotal} shipping={shipping} />
             </div>
           </div>
         </div>

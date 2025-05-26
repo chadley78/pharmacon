@@ -65,7 +65,7 @@ export async function GET(
     } 
     // If guest, verify the email matches
     else if (guestEmail) {
-      if (order.guest_email !== guestEmail) {
+    if (order.guest_email !== guestEmail) {
         return NextResponse.json(
           { error: 'Order not found' }, 
           { 

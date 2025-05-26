@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Product } from '@/lib/types'
 import { useCartStore } from '@/stores/cartStore'
 import { useState, useEffect } from 'react'
@@ -10,6 +9,7 @@ import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
 import Modal from '@/components/ui/Modal'
 import QuestionnaireForm from '@/components/forms/QuestionnaireForm'
 import Toast from '@/components/ui/Toast'
+import { ProductImage } from '@/components/common/ProductImage'
 
 interface ProductDetailsProps {
   product: Product
@@ -48,19 +48,6 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const tabletOptions = [4, 8, 12]
   const [quantity, setQuantity] = useState(1)
   const [toast, setToast] = useState<ToastState>({ message: '', type: 'success', show: false })
-
-  const getGradientClass = (category: string) => {
-    switch (category) {
-      case 'direct_purchase':
-        return 'from-yellow-400 to-yellow-100'
-      case 'prescription':
-        return 'from-primary-base to-primary-light'
-      case 'restricted':
-        return 'from-primary-base/90 to-primary-light/70'
-      default:
-        return 'from-gray-100 to-gray-200'
-    }
-  }
 
   useEffect(() => {
     if (product.category === 'restricted') {
@@ -227,28 +214,19 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-b ${getGradientClass(product.category)}`}>
-      {/* Gradient/Image Section */}
-      <div className="w-full bg-gradient-to-br flex flex-col items-center justify-center pt-24 pb-12 px-4 sm:px-8" style={{ minHeight: '500px' }}>
-        <div className="relative z-10 flex justify-center w-full" style={{ paddingBottom: '100px' }}>
-          {product.image_url ? (
-            <Image
-              src={product.image_url}
-              alt={product.name}
-              width={320}
-              height={320}
-              className="object-contain h-[40vh] max-h-80 w-auto mx-auto filter drop-shadow-2xl"
-              priority
-            />
-          ) : (
-            <div className="h-[40vh] max-h-80 w-60 flex items-center justify-center bg-gray-100 rounded-2xl filter drop-shadow-2xl">
-              <span className="text-gray-400">No image available</span>
-            </div>
-          )}
+    <div className="min-h-screen bg-white">
+      {/* Image Section */}
+      <div className="relative w-full h-[60vh]">
+        <div className="absolute inset-0 w-full h-full">
+          <ProductImage 
+            product={product} 
+            className="w-full h-full object-cover"
+            priority
+          />
         </div>
       </div>
       {/* Details Section */}
-      <div className="w-full bg-white rounded-t-3xl md:rounded-t-[48px] rounded-b-none -mt-24 pb-12 px-6 sm:px-8 lg:px-0 shadow-2xl">
+      <div className="relative w-full bg-white rounded-t-3xl md:rounded-t-[48px] rounded-b-none -mt-24 pb-12 shadow-2xl">
         <div className="max-w-2xl mx-auto p-6 pt-12 text-left">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
             {product.name}
@@ -341,13 +319,69 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             </button>
           </div>
           <div className="mt-6">
-            <h3 className="sr-only">Description</h3>
-            <div className="space-y-6 text-base md:text-lg text-gray-700">
-              {product.description}
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque. Mauris consequat, velit at volutpat gravida, orci velit dictum erat, at cursus enim erat eu urna.</p>
-              <p>Phasellus euismod, justo at facilisis cursus, urna erat laoreet erat, nec dictum erat urna eu urna. Etiam euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque.</p>
-              <p>Aliquam erat volutpat. Suspendisse potenti. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.</p>
-              <p>Morbi non urna nec sapien dictum ultricies. Etiam euismod, urna eu tincidunt consectetur, nisi nisl aliquam nunc, eget aliquam massa nisl quis neque.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Information</h3>
+            <div className="space-y-6 text-base text-gray-700">
+              {/* Description */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                <p>{product.description}</p>
+              </div>
+
+              {/* Manufacturer */}
+              {product.manufacturer && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Manufacturer</h4>
+                  <p>{product.manufacturer}</p>
+                </div>
+              )}
+
+              {/* Dosage Instructions */}
+              {product.dosage_instructions && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Dosage Instructions</h4>
+                  <p>{product.dosage_instructions}</p>
+                </div>
+              )}
+
+              {/* Side Effects */}
+              {product.side_effects && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Side Effects</h4>
+                  <p>{product.side_effects}</p>
+                </div>
+              )}
+
+              {/* Ingredients */}
+              {product.ingredients && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Ingredients</h4>
+                  <p>{product.ingredients}</p>
+                </div>
+              )}
+
+              {/* Storage Instructions */}
+              {product.storage_instructions && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">Storage Instructions</h4>
+                  <p>{product.storage_instructions}</p>
+                </div>
+              )}
+
+              {/* Additional Information */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h4 className="font-medium text-gray-900 mb-2">Additional Information</h4>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Category: {product.category.replace('_', ' ').toUpperCase()}</li>
+                  {product.requires_prescription && (
+                    <li>This product requires a prescription</li>
+                  )}
+                  {product.stock_quantity > 0 ? (
+                    <li>In Stock: {product.stock_quantity} units available</li>
+                  ) : (
+                    <li className="text-red-600">Out of Stock</li>
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
           {questionnaireApproval?.status === 'rejected' && (

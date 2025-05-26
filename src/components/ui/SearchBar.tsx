@@ -45,7 +45,7 @@ export function SearchBar({
       console.log('🔍 SearchBar - Updating input from URL:', urlQuery)
       setInputValue(urlQuery)
     }
-  }, [searchParams]) // Only depend on searchParams
+  }, [searchParams, inputValue])
 
   /**
    * Debounced URL Update Effect

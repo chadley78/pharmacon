@@ -24,8 +24,8 @@ export default function SuccessContent() {
 
     if (!orderId) {
       router.push('/')
-      return
-    }
+        return
+      }
 
     const fetchOrder = async () => {
       try {
@@ -53,7 +53,7 @@ export default function SuccessContent() {
     }
 
     fetchOrder()
-  }, [orderId, router, guestEmail, searchParams])
+  }, [orderId, router, guestEmail, searchParams, paymentIntentId])
 
   if (loading) {
     return (
@@ -74,7 +74,7 @@ export default function SuccessContent() {
           <button
             onClick={() => router.push('/')}
             className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-          >
+            >
             Return to Home
           </button>
         </div>
@@ -102,7 +102,7 @@ export default function SuccessContent() {
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
             Order placed on {new Date(order.created_at).toLocaleDateString()}
           </p>
-        </div>
+            </div>
 
         <div className="border-t border-gray-200">
           <dl>
@@ -125,7 +125,7 @@ export default function SuccessContent() {
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 <AddressDisplay address={order.billing_address} />
               </dd>
-            </div>
+        </div>
 
             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Items</dt>
@@ -137,15 +137,15 @@ export default function SuccessContent() {
                         <span className="ml-2 flex-1 w-0 truncate">
                           {item.product.name} x {item.quantity}
                         </span>
-                      </div>
+                </div>
                       <div className="ml-4 flex-shrink-0">
                         €{(item.price_at_time * item.quantity).toFixed(2)}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
               </dd>
-            </div>
+        </div>
 
             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Total</dt>
@@ -155,13 +155,13 @@ export default function SuccessContent() {
             </div>
           </dl>
         </div>
-      </div>
+        </div>
 
       <div className="mt-8 flex justify-center space-x-4">
         <button
           onClick={() => router.push('/')}
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-        >
+          >
           Return to Home
         </button>
         {order.user_id && (
