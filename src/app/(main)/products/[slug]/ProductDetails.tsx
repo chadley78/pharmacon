@@ -89,6 +89,30 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     }
   }, [product.id, product.category, supabase])
 
+  // Add popularity tracking
+  useEffect(() => {
+    const updatePopularity = async () => {
+      try {
+        const response = await fetch(`/api/products/${product.id}/popularity`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          // Don't show error to user, just log it
+          console.error('Failed to update product popularity')
+        }
+      } catch (error) {
+        // Don't show error to user, just log it
+        console.error('Error updating product popularity:', error)
+      }
+    }
+
+    updatePopularity()
+  }, [product.id])
+
   const handleAddToCart = async () => {
     setLoading(true)
     setError(null)

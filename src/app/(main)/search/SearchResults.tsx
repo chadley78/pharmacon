@@ -11,9 +11,10 @@ import { useRouter } from 'next/navigation'
 
 const ITEMS_PER_PAGE = 9 // 3 columns of 3 items each
 
-type SortOption = 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'category'
+type SortOption = 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'category' | 'popularity'
 
 const sortOptions = [
+  { value: 'popularity', label: 'Most Popular' },
   { value: 'price_asc', label: 'Price: Low to High' },
   { value: 'price_desc', label: 'Price: High to Low' },
   { value: 'name_asc', label: 'Name: A to Z' },
@@ -28,7 +29,7 @@ export function SearchResults() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const searchQuery = searchParams.get('q') || ''
-  const sortBy = (searchParams.get('sort') as SortOption) || 'category'
+  const sortBy = (searchParams.get('sort') as SortOption) || 'popularity'
   const currentPage = Number(searchParams.get('page')) || 1
   const selectedCategories = useMemo(() => 
     new Set(searchParams.getAll('category') as ProductCategory[]),
@@ -155,6 +156,9 @@ export function SearchResults() {
         // Apply sorting at the database level
         console.log('🔍 Search component - Applying sort:', sortBy)
         switch (sortBy) {
+          case 'popularity':
+            query = query.order('popularity', { ascending: false })
+            break
           case 'price_asc':
             query = query.order('price', { ascending: true })
             break

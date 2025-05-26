@@ -8,9 +8,10 @@ import ProductCard from '@/components/products/ProductCard'
 import ProductCardSkeleton from '@/components/products/ProductCardSkeleton'
 import { SearchBar } from '@/components/ui/SearchBar'
 
-type SortOption = 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'category'
+type SortOption = 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'category' | 'popularity'
 
 const sortOptions = [
+  { value: 'popularity', label: 'Most Popular' },
   { value: 'category', label: 'Category' },
   { value: 'price_asc', label: 'Price: Low to High' },
   { value: 'price_desc', label: 'Price: High to Low' },
@@ -25,7 +26,7 @@ export default function ProductsClient() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const searchQuery = searchParams.get('q') || ''
-  const sortBy = (searchParams.get('sort') as SortOption) || 'category'
+  const sortBy = (searchParams.get('sort') as SortOption) || 'popularity'
 
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -53,6 +54,9 @@ export default function ProductsClient() {
 
         // Apply sorting
         switch (sortBy) {
+          case 'popularity':
+            query = query.order('popularity', { ascending: false })
+            break
           case 'price_asc':
             query = query.order('price', { ascending: true })
             break
