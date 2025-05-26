@@ -105,9 +105,9 @@ export default function HeroBanner() {
               </h1>
               {/* CTA Buttons - Below headline on desktop, bottom of banner on mobile */}
               <div className="flex flex-row md:flex-col justify-center gap-4 mt-8 md:mt-12 md:items-start">
-                <Link 
+                <Link
                   href="/products?category=men"
-                  className="ghost-button relative w-1/2 md:w-auto max-w-[280px] px-6 py-4 border-2 border-text-dark text-text-dark text-lg md:text-xl font-medium tracking-wide rounded-xl text-center transition-all duration-300 animate-fade-in-up opacity-0 hover:bg-text-dark hover:text-white group"
+                  className="ghost-button relative w-1/2 md:w-auto max-w-[280px] px-6 py-4 border-2 border-text-dark text-text-dark text-sm md:text-lg font-medium tracking-wide rounded-xl text-center transition-all duration-300 animate-fade-in-up opacity-0 hover:bg-text-dark hover:text-white group"
                   style={{ animationDelay: '0.2s' }}
                 >
                   <span className="flex items-center justify-center gap-2">
@@ -127,9 +127,9 @@ export default function HeroBanner() {
                     </svg>
                   </span>
                 </Link>
-                <Link 
+                <Link
                   href="/products?category=women"
-                  className="ghost-button relative w-1/2 md:w-auto max-w-[280px] px-6 py-4 border-2 border-text-dark text-text-dark text-lg md:text-xl font-medium tracking-wide rounded-xl text-center transition-all duration-300 animate-fade-in-up opacity-0 hover:bg-text-dark hover:text-white group"
+                  className="ghost-button relative w-1/2 md:w-auto max-w-[280px] px-6 py-4 border-2 border-text-dark text-text-dark text-sm md:text-lg font-medium tracking-wide rounded-xl text-center transition-all duration-300 animate-fade-in-up opacity-0 hover:bg-text-dark hover:text-white group"
                   style={{ animationDelay: '0.4s' }}
                 >
                   <span className="flex items-center justify-center gap-2">
