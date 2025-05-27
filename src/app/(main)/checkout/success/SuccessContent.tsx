@@ -3,13 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Order, Address } from '@/lib/types'
+import { useCartStore } from '@/stores/cartStore'
 
 export default function SuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { clearCart } = useCartStore()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [cartCleared, setCartCleared] = useState(false)
   const orderId = searchParams.get('orderId')
   const paymentIntentId = searchParams.get('payment_intent')
   const guestEmail = searchParams.get('guest_email')
@@ -24,8 +27,8 @@ export default function SuccessContent() {
 
     if (!orderId) {
       router.push('/')
-        return
-      }
+      return
+    }
 
     const fetchOrder = async () => {
       try {
@@ -44,6 +47,12 @@ export default function SuccessContent() {
         }
         const orderData = await response.json()
         setOrder(orderData)
+
+        // Clear the cart only after we've successfully loaded the order
+        if (!cartCleared) {
+          clearCart()
+          setCartCleared(true)
+        }
       } catch (err) {
         console.error('Error fetching order:', err)
         setError('Failed to load order details')
@@ -53,7 +62,7 @@ export default function SuccessContent() {
     }
 
     fetchOrder()
-  }, [orderId, router, guestEmail, searchParams, paymentIntentId])
+  }, [orderId, router, guestEmail, searchParams, paymentIntentId, clearCart, cartCleared])
 
   if (loading) {
     return (

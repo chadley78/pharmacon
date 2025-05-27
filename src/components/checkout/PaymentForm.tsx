@@ -320,9 +320,9 @@ function StripePaymentForm({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-lg font-medium text-gray-900 mb-2">Order Successful!</h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-2">Payment Accepted</h2>
         <p className="text-gray-600 mb-4">
-          Your order has been placed successfully. Redirecting to order details...
+          Your payment has been processed. Redirecting to order details...
         </p>
         <p className="text-sm text-gray-500">
           Order ID: {orderId}
