@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getStripeServer } from '@/lib/stripe'
 import { OrderStatus, CartItem } from '@/lib/types'
 import { Address } from '@/lib/types'
+import { sendOrderConfirmationEmail } from '@/lib/email'
 
 interface RequestBody {
   paymentIntentId: string
@@ -183,6 +184,32 @@ export async function POST(request: Request) {
       }
 
       console.log('Cart cleared successfully')
+    }
+
+    // Fetch the complete order with items for the email
+    const { data: completeOrder, error: fetchError } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        order_items (
+          *,
+          product:products (*)
+        )
+      `)
+      .eq('id', order.id)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching complete order for email:', fetchError)
+      // Don't return error here as the order was created successfully
+    } else {
+      try {
+        await sendOrderConfirmationEmail(completeOrder)
+        console.log('Order confirmation email sent successfully')
+      } catch (emailError) {
+        console.error('Error sending order confirmation email:', emailError)
+        // Don't return error here as the order was created successfully
+      }
     }
 
     return NextResponse.json({
