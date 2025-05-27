@@ -1,7 +1,12 @@
 import { Resend } from 'resend'
-import { Order, OrderItem } from '@/lib/types'
+import { Order, OrderItem as BaseOrderItem } from '@/lib/types'
 import { createClient } from '@/lib/supabase/server'
 import { getStripeServer } from '@/lib/stripe'
+
+// Extend the base OrderItem type to include price_at_time
+interface OrderItem extends BaseOrderItem {
+  price_at_time: number
+}
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY is not configured')
@@ -51,13 +56,21 @@ export async function sendOrderConfirmationEmail(order: Order) {
     day: 'numeric'
   })
 
-  const itemsList = order_items.map((item: OrderItem) => `
+  if (!order_items) {
+    throw new Error('Order items are missing from the order')
+  }
+
+  const itemsList = (order_items as OrderItem[]).map((item: OrderItem) => {
+    if (!item.product) {
+      throw new Error('Product information is missing from order item')
+    }
+    return `
     <tr>
       <td style="padding: 12px; border-bottom: 1px solid #eee;">${item.product.name}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
       <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right;">€${(item.price_at_time * item.quantity).toFixed(2)}</td>
     </tr>
-  `).join('')
+  `}).join('')
 
   const emailHtml = `
     <!DOCTYPE html>

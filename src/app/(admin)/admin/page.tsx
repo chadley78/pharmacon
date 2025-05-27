@@ -33,9 +33,9 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">
-          Welcome to your admin dashboard. Here's an overview of your store.
+        <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage your store&apos;s products and orders
         </p>
       </div>
 

@@ -4,26 +4,14 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { format } from 'date-fns'
-
-interface Product {
-  id: string
-  created_at: string
-  name: string
-  slug: string
-  description: string
-  price: number
-  category: string
-  is_active: boolean
-  stock: number
-  image_url: string
-}
+import Image from 'next/image'
+import { Product } from '@/lib/types'
 
 interface ProductsListProps {
   products: Product[]
 }
 
-export function ProductsList({ products }: ProductsListProps) {
+export default function ProductsList({ products: initialProducts }: ProductsListProps) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const router = useRouter()
 
@@ -75,19 +63,22 @@ export function ProductsList({ products }: ProductsListProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {products.map((product) => (
+          {initialProducts.map((product) => (
             <tr key={product.id}>
               <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
                 <div className="flex items-center">
-                  {product.image_url && (
-                    <div className="h-10 w-10 flex-shrink-0">
-                      <img
-                        className="h-10 w-10 rounded-full object-cover"
-                        src={product.image_url}
-                        alt={product.name}
-                      />
-                    </div>
-                  )}
+                  <td className="px-4 py-2">
+                    {product.image_url && (
+                      <div className="relative w-16 h-16">
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          fill
+                          className="object-cover rounded-md"
+                        />
+                      </div>
+                    )}
+                  </td>
                   <div className="ml-4">
                     <div className="font-medium text-gray-900">{product.name}</div>
                     <div className="text-gray-500">{product.slug}</div>
@@ -101,7 +92,7 @@ export function ProductsList({ products }: ProductsListProps) {
                 €{product.price.toFixed(2)}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                {product.stock}
+                {product.stock_quantity}
               </td>
               <td className="whitespace-nowrap px-3 py-4 text-sm">
                 <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${

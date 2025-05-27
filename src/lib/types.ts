@@ -43,7 +43,8 @@ export interface Cart {
 
 export enum OrderStatus {
   PROCESSING = 'processing',
-  SHIPPED = 'shipped',
+  PACKED = 'packed',
+  OUT_FOR_DELIVERY = 'out_for_delivery',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
 }
@@ -64,10 +65,11 @@ export interface OrderItem {
   order_id: string
   product_id: string
   quantity: number
-  price_at_time: number
+  dosage: number
+  tablet_count: number
   created_at: string
   updated_at: string
-  product: Product
+  product?: Product
 }
 
 export interface Order {
@@ -81,8 +83,9 @@ export interface Order {
   shipping_address: Address
   billing_address: Address
   stripe_payment_intent_id: string
-  stripe_customer_id: string
+  stripe_customer_id: string | null
+  out_for_delivery_at: string | null
   created_at: string
   updated_at: string
-  order_items: OrderItem[]
+  order_items?: OrderItem[]
 } 
