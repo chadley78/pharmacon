@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useCartStore } from '@/stores/cartStore'
 import PaymentForm from '@/components/checkout/PaymentForm'
 import CartSummary from '@/components/cart/CartSummary'
@@ -16,8 +15,7 @@ export default function CheckoutPage() {
     show: false
   })
 
-  const router = useRouter()
-  const { items = [], total = 0, clearCart } = useCartStore()
+  const { items = [], total = 0 } = useCartStore()
   const subtotal = total // Since we don't have separate subtotal in cart store, using total as subtotal
   const shipping = 0 // Free shipping for now
 

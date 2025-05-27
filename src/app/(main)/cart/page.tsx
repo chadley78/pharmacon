@@ -3,20 +3,10 @@
 import { useCartStore } from '@/stores/cartStore'
 import CartItem from '@/components/cart/CartItem'
 import CartSummary from '@/components/cart/CartSummary'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import Link from 'next/link'
 
 export default function CartPage() {
   const { items = [], total, removeItem, updateQuantity } = useCartStore()
-  const router = useRouter()
-
-  // Remove the redirect effect
-  // useEffect(() => {
-  //   if (items.length === 0) {
-  //     router.push('/')
-  //   }
-  // }, [items.length, router])
 
   // Show loading state while checking cart
   if (!items) {
@@ -42,7 +32,7 @@ export default function CartPage() {
                 </svg>
               </div>
               <h2 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h2>
-              <p className="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+              <p className="text-gray-500 mb-6">Looks like you haven&apos;t added any items to your cart yet.</p>
               <Link
                 href="/products"
                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary-base px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-base focus:ring-offset-2"
