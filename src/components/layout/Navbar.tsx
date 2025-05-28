@@ -4,16 +4,17 @@ import React from 'react';
 import Link from 'next/link'
 import { useEffect, useState, Suspense, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import type { Session } from '@supabase/supabase-js'
 import CartIcon from '@/components/cart/CartIcon'
 import { useRouter, usePathname } from 'next/navigation'
-import { UserIcon, Bars3Icon, XMarkIcon, HomeIcon } from '@heroicons/react/24/outline'
+import { UserIcon, Bars3Icon, XMarkIcon, HomeIcon, ClipboardDocumentListIcon, CubeIcon, ChartBarIcon, UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { SearchBar } from '@/components/ui/SearchBar'
 
 // Mobile menu component
 function MobileMenu({ isOpen, onClose, session, isAdmin, handleSignOut }: { 
   isOpen: boolean
   onClose: () => void
-  session: unknown
+  session: Session | null
   isAdmin: boolean
   handleSignOut: () => void 
 }) {
@@ -115,11 +116,62 @@ function MobileMenu({ isOpen, onClose, session, isAdmin, handleSignOut }: {
                       <ul className="mt-2 space-y-1">
                         <li>
                           <Link
+                            href="/admin"
+                            className="block px-4 py-2.5 text-gray-900 hover:bg-gray-50 rounded-md font-medium hover:text-black transition-colors"
+                            onClick={onClose}
+                          >
+                            <div className="flex items-center">
+                              <Cog6ToothIcon className="h-5 w-5 mr-2" />
+                              Dashboard
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/admin/products"
+                            className="block px-4 py-2.5 text-gray-900 hover:bg-gray-50 rounded-md font-medium hover:text-black transition-colors"
+                            onClick={onClose}
+                          >
+                            <div className="flex items-center">
+                              <CubeIcon className="h-5 w-5 mr-2" />
+                              Products
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/admin/orders"
+                            className="block px-4 py-2.5 text-gray-900 hover:bg-gray-50 rounded-md font-medium hover:text-black transition-colors"
+                            onClick={onClose}
+                          >
+                            <div className="flex items-center">
+                              <ChartBarIcon className="h-5 w-5 mr-2" />
+                              Orders
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
                             href="/admin/questionnaires"
                             className="block px-4 py-2.5 text-gray-900 hover:bg-gray-50 rounded-md font-medium hover:text-black transition-colors"
                             onClick={onClose}
                           >
-                            Questionnaires
+                            <div className="flex items-center">
+                              <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
+                              Questionnaires
+                            </div>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            href="/admin/users"
+                            className="block px-4 py-2.5 text-gray-900 hover:bg-gray-50 rounded-md font-medium hover:text-black transition-colors"
+                            onClick={onClose}
+                          >
+                            <div className="flex items-center">
+                              <UsersIcon className="h-5 w-5 mr-2" />
+                              Admin Users
+                            </div>
                           </Link>
                         </li>
                       </ul>
@@ -170,7 +222,7 @@ function MobileMenu({ isOpen, onClose, session, isAdmin, handleSignOut }: {
 }
 
 export default function Navbar() {
-  const [session, setSession] = useState<unknown>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -190,24 +242,50 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
-  const checkAdminStatus = useCallback(async (userId: string) => {
-    console.log('Checking admin status for user:', userId)
-    const { data, error } = await supabase
-      .from('admin_users')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-    
-    console.log('Admin check result:', { data, error })
-    setIsAdmin(!!data && !error)
-  }, [supabase])
+  const checkAdminStatus = useCallback(async (email: string) => {
+    console.log('Checking admin status for email:', email)
+    if (!email) {
+      console.log('No email provided, setting isAdmin to false')
+      setIsAdmin(false)
+      return
+    }
+
+    try {
+      console.log('Making request to check admin status...')
+      const response = await fetch(`/api/admin/check-status?email=${encodeURIComponent(email)}`)
+      console.log('Admin status response status:', response.status)
+      
+      const data = await response.json()
+      console.log('Admin status response data:', data)
+      
+      if (!response.ok) {
+        console.error('Admin status check failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          details: data.details
+        })
+        throw new Error(data.error || 'Failed to check admin status')
+      }
+      
+      console.log('Admin check result:', data)
+      setIsAdmin(data.isAdmin)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+      if (error instanceof Error) {
+        console.error('Error details:', error.message)
+      }
+      setIsAdmin(false)
+    }
+  }, [])
 
   useEffect(() => {
     // Check initial auth state
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial auth state:', session?.user?.email)
       setSession(session)
-      if (session) {
-        checkAdminStatus(session.user.id)
+      if (session?.user?.email) {
+        checkAdminStatus(session.user.email)
       }
     })
 
@@ -215,9 +293,10 @@ export default function Navbar() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log('Auth state changed:', session?.user?.email)
       setSession(session)
-      if (session) {
-        checkAdminStatus(session.user.id)
+      if (session?.user?.email) {
+        checkAdminStatus(session.user.email)
       } else {
         setIsAdmin(false)
       }
@@ -312,16 +391,69 @@ export default function Navbar() {
               {session ? (
                 <>
                   {isAdmin && (
-                    <Link
-                      href="/admin/questionnaires"
-                      className={`${
-                        isTransparentPage && !isScrolled
-                          ? 'text-text-dark hover:text-text-dark/80' 
-                          : 'text-gray-700 hover:text-black'
-                      } px-3 py-2 rounded-md text-sm font-medium transition-colors`}
-                    >
-                      Admin
-                    </Link>
+                    <div className="relative group">
+                      <button
+                        className={`${
+                          isTransparentPage && !isScrolled
+                            ? 'text-text-dark hover:text-text-dark/80' 
+                            : 'text-gray-700 hover:text-black'
+                        } px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center`}
+                      >
+                        Admin
+                        <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div className="py-1">
+                          <Link
+                            href="/admin"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <Cog6ToothIcon className="h-5 w-5 mr-2" />
+                              Dashboard
+                            </div>
+                          </Link>
+                          <Link
+                            href="/admin/products"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <CubeIcon className="h-5 w-5 mr-2" />
+                              Products
+                            </div>
+                          </Link>
+                          <Link
+                            href="/admin/orders"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <ChartBarIcon className="h-5 w-5 mr-2" />
+                              Orders
+                            </div>
+                          </Link>
+                          <Link
+                            href="/admin/questionnaires"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
+                              Questionnaires
+                            </div>
+                          </Link>
+                          <Link
+                            href="/admin/users"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <div className="flex items-center">
+                              <UsersIcon className="h-5 w-5 mr-2" />
+                              Admin Users
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   )}
                   <Link
                     href="/account"

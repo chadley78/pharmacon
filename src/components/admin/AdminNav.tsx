@@ -8,7 +8,8 @@ import {
   HomeIcon,
   ChartBarIcon,
   UsersIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Questionnaires', href: '/admin/questionnaires', icon: ClipboardDocumentListIcon },
   { name: 'Orders', href: '/admin/orders', icon: ChartBarIcon },
   { name: 'Customers', href: '/admin/customers', icon: UsersIcon },
+  { name: 'Admin Users', href: '/admin/users', icon: UserGroupIcon },
   { name: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon },
 ]
 

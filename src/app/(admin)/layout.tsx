@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AdminNav } from '@/components/admin/AdminNav'
+import Navbar from '@/components/layout/Navbar'
 import { Suspense } from 'react'
 
 export default async function AdminLayout({
@@ -31,7 +32,12 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <Suspense fallback={
+        <div className="h-16 bg-white shadow-sm animate-pulse" />
+      }>
+        <Navbar />
+      </Suspense>
+      <div className="flex pt-16">
         <Suspense fallback={
           <div className="w-64 bg-white border-r border-gray-200 min-h-screen animate-pulse" />
         }>
